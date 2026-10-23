@@ -1,0 +1,16 @@
+{
+  "name": "brighter-nexus",
+  "productName": "Brighter Nexus",
+  "version": "0.2.0",
+  "description": "Plataforma educativa para pantallas interactivas BTOUCH: pizarra, kit de actividades y biblioteca 3D",
+  "private": true,
+  "type": "module",
+  "author": "Brighter Perú S.A.C.",
+  "license": "UNLICENSED",
+  "scripts": {
+    "servir": "node herramientas/servir.js",
+    "pruebas": "node pruebas/probar-puntaje.js",
+    "prueba:prototipo": "node pruebas/probar-prototipo.mjs",
+    "kit": "node herramientas/verificar-kit.js"
+  }
+}

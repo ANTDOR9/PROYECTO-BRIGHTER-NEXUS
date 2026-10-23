@@ -1,0 +1,36 @@
+{
+  "fuente": "Informe técnico Proyecto 3 (resumen de las bases de Torata, numeral 4.1). Confirmar los números con las bases originales.",
+  "requisitos": [
+    {
+      "id": "prim-mat-leng",
+      "descripcion": "Primaria: 10 actividades de matemática y lenguaje",
+      "minimo": 10,
+      "filtro": { "nivel": "primaria", "cursos": ["matematica", "lenguaje"], "modalidad": "actividad" }
+    },
+    {
+      "id": "prim-clases-juego",
+      "descripcion": "Primaria: 12 clases de matemática en modalidad clase-juego",
+      "minimo": 12,
+      "filtro": { "nivel": "primaria", "cursos": ["matematica"], "modalidad": "clase-juego" }
+    },
+    {
+      "id": "prim-ciencias",
+      "descripcion": "Primaria: 30 actividades de ciencias (vida; física y química; Tierra y Universo)",
+      "minimo": 30,
+      "filtro": { "nivel": "primaria", "cursos": ["ciencias"], "modalidad": "actividad" },
+      "dimensiones": ["vida", "fisica-quimica", "tierra-universo"]
+    },
+    {
+      "id": "sec-ciencias",
+      "descripcion": "Secundaria: 10 actividades de ciencias (mismas 3 dimensiones)",
+      "minimo": 10,
+      "filtro": { "nivel": "secundaria", "cursos": ["ciencias"], "modalidad": "actividad" },
+      "dimensiones": ["vida", "fisica-quimica", "tierra-universo"]
+    }
+  ],
+  "temas": {
+    "matematica": ["multiplicacion", "division", "sistema-decimal", "poblacion-muestra", "formando-triangulos"],
+    "lenguaje": ["cuento", "noticia", "fabula", "periodismo", "expresar-observado"]
+  },
+  "manuales": ["Manual de orientaciones pedagógicas", "Manual digital de instalación"]
+}

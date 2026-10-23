@@ -1,0 +1,153 @@
+/* Estilos del prototipo: intro, rondas de actividades, pizarra y visor 3D.
+   Todo usa los colores de tema.css, así cambia con la escena de cada sesión. */
+
+.insignia.prototipo { background: var(--cian); }
+.pie-inicio { margin-top: 36px; }
+.pie-inicio a { color: var(--suave); font-weight: 800; }
+
+/* ---------- aviso (medallas) ---------- */
+.aviso {
+  position: fixed; left: 50%; bottom: 28px; z-index: 20; display: flex; align-items: center; gap: 14px;
+  padding: 14px 24px; border-radius: 999px; font-size: 20px; font-weight: 900;
+  color: #031F2B; background: var(--amarillo); border: 3px solid #031F2B;
+  transform: translate(-50%, 30px); opacity: 0; transition: transform .35s ease, opacity .35s ease;
+}
+.aviso.visible { transform: translate(-50%, 0); opacity: 1; }
+.aviso b { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: #031F2B; color: var(--amarillo); }
+
+/* ---------- intro ---------- */
+body.en-intro .barra-superior { display: none; }
+body.en-intro main { max-width: none; padding: 0; }
+.intro {
+  position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 22px; cursor: pointer; outline: none;
+}
+.intro-marco {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  width: min(92vw, calc(70vh * 16 / 9)); aspect-ratio: 16 / 9; overflow: hidden;
+  border-radius: 28px; background: rgba(0, 0, 0, .25);
+}
+.intro-marco.reservado { border: 4px dashed rgba(255, 255, 255, .35); }
+.intro-medio { width: 100%; height: 100%; object-fit: contain; background: #000; }
+.intro-logo { animation: latido 2.4s ease-in-out infinite; }
+.intro-logo svg { width: clamp(90px, 16vh, 180px); height: auto; }
+.intro-titulo { font-size: clamp(30px, 6vh, 60px); font-weight: 900; letter-spacing: .02em; }
+.intro-sub { color: var(--suave); font-size: clamp(16px, 2.6vh, 26px); font-weight: 700; min-height: 1.2em; }
+.intro-reserva {
+  margin-top: 14px; padding: 6px 18px; border-radius: 999px; font-size: 14px; font-weight: 900;
+  letter-spacing: .12em; text-transform: uppercase; color: #031F2B; background: var(--amarillo);
+}
+@keyframes latido { 50% { transform: scale(1.07); } }
+.intro-pie { color: var(--suave); font-size: 20px; font-weight: 800; }
+.intro-barra { width: min(60vw, 520px); height: 8px; border-radius: 999px; background: rgba(255, 255, 255, .16); overflow: hidden; }
+.intro-barra i { display: block; width: 0; height: 100%; background: var(--acento); }
+.intro-saltar { position: absolute; top: 20px; right: 24px; min-height: 52px; font-size: 18px; }
+@media (prefers-reduced-motion: reduce) { .intro-logo { animation: none; } }
+
+/* ---------- encabezado compacto (pizarra y visor 3D) ---------- */
+.cab-compacta { display: flex; align-items: center; gap: 18px; margin-bottom: 6px; }
+.cab-compacta h1 { margin: 0; font-size: 28px; }
+.cab-compacta .volver { color: var(--acento); font-weight: 900; font-size: 18px; text-decoration: none; }
+
+/* ---------- ronda de actividades ---------- */
+.ronda-cab { display: flex; align-items: center; gap: 16px; max-width: 860px; margin: 14px auto 0; font-weight: 900; font-size: 18px; color: var(--suave); }
+.puntos-ronda { display: flex; gap: 8px; flex: 1; justify-content: center; }
+.puntos-ronda i { width: 14px; height: 14px; border-radius: 50%; background: rgba(255, 255, 255, .2); }
+.puntos-ronda i.hecho { background: var(--acento); }
+.puntos-ronda i.actual { background: var(--texto); box-shadow: 0 0 0 4px rgba(255, 255, 255, .25); }
+.total-estrellas { color: var(--amarillo); }
+.ronda-pie { display: flex; align-items: center; justify-content: space-between; gap: 18px; max-width: 860px; margin: 0 auto; min-height: 84px; }
+.instruccion { margin: 0 0 6px; color: var(--suave); font-size: 20px; font-weight: 700; }
+
+.linea-huecos { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.hueco, .lugar {
+  font: inherit; color: var(--texto); cursor: pointer; background: rgba(255, 255, 255, .06);
+  border: 3px dashed var(--borde); border-radius: 16px;
+}
+.hueco { min-width: 84px; min-height: 64px; padding: 0 14px; font-size: 28px; font-weight: 900; }
+.hueco.lleno { border-style: solid; background: rgba(255, 255, 255, .14); }
+.hueco.bien, .lugar.bien { background: rgba(184, 255, 59, .22); border: 3px solid var(--lima); }
+.hueco.mal, .lugar.mal { background: rgba(255, 79, 184, .25); border: 3px solid var(--rosa); }
+.banco { display: flex; flex-wrap: wrap; gap: 14px; margin: 22px 0 18px; }
+.ficha {
+  min-width: 84px; min-height: 68px; padding: 0 20px; font: inherit; font-size: 26px; font-weight: 900; cursor: pointer;
+  color: #031F2B; background: var(--acento); border: 3px solid #031F2B; border-radius: 18px;
+}
+.ficha:disabled { opacity: .25; cursor: default; }
+.ficha:active:not(:disabled) { transform: scale(.95); }
+.ficha[hidden] { display: none; }
+.boton:disabled { opacity: .4; cursor: default; }
+
+.lugares { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 12px; }
+.lugar { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; min-height: 76px; padding: 10px 20px; text-align: left; }
+.lugar small { color: var(--acento); font-size: 14px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+.lugar-texto { font-size: 21px; font-weight: 800; }
+.lugar:not(.lleno) .lugar-texto { color: var(--suave); font-weight: 700; }
+.banco.tarjetas { flex-direction: column; margin-top: 0; }
+.ficha.tarjeta { width: 100%; padding: 12px 20px; text-align: left; font-size: 21px; font-weight: 800; color: var(--texto); background: rgba(255, 255, 255, .12); border-color: var(--borde); }
+
+.resumen .resumen-estrellas { font-size: 44px; font-weight: 900; margin: 6px 0 10px; }
+.resumen .resumen-estrellas .on { color: var(--amarillo); }
+.acciones { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 22px; }
+.acciones .boton { display: inline-flex; align-items: center; text-decoration: none; }
+
+/* ---------- barra de herramientas (pizarra y visor) ---------- */
+.herr {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-width: 66px; min-height: 62px; padding: 4px 8px; font: inherit; cursor: pointer;
+  color: var(--texto); background: var(--tarjeta); border: 2px solid var(--borde); border-radius: 14px;
+}
+.herr .ico { font-size: 24px; line-height: 1; }
+.herr small { font-size: 12px; font-weight: 800; color: var(--suave); }
+.herr.activa { background: var(--acento); border-color: #031F2B; color: #031F2B; }
+.herr.activa small { color: #031F2B; }
+.herr:disabled { opacity: .35; cursor: default; }
+.herr.peligro { background: var(--rosa); color: #031F2B; border-color: #031F2B; }
+.herr.peligro small { color: #031F2B; }
+.herr.grosor i { display: block; border-radius: 50%; background: currentColor; }
+
+/* ---------- pizarra ---------- */
+.pizarra { display: flex; flex-direction: column; gap: 10px; height: calc(100dvh - 150px); min-height: 380px; }
+.barra-pizarra { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; }
+.grupo-pizarra { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.muestra { width: 46px; height: 46px; border-radius: 50%; cursor: pointer; border: 3px solid rgba(255, 255, 255, .45); }
+.muestra.activa { border-color: var(--acento); box-shadow: 0 0 0 4px rgba(255, 255, 255, .5); transform: scale(1.1); }
+.lienzo { position: relative; flex: 1; min-height: 0; border-radius: 18px; overflow: hidden; border: 2px solid var(--borde); }
+.lienzo canvas { position: absolute; inset: 0; touch-action: none; cursor: crosshair; }
+.pizarra-aviso {
+  position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); padding: 8px 18px; border-radius: 999px;
+  font-weight: 900; color: #031F2B; background: var(--amarillo); opacity: 0; transition: opacity .25s; pointer-events: none;
+}
+.pizarra-aviso.visible { opacity: 1; }
+
+/* ---------- visor 3D ---------- */
+.visor { display: grid; grid-template-columns: 270px 1fr; gap: 16px; height: calc(100dvh - 150px); min-height: 420px; }
+.visor-lista { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; padding-right: 4px; }
+.tarjeta.modelo { min-height: 110px; padding: 14px 18px; width: 100%; }
+.tarjeta.modelo b { font-size: 20px; }
+.tarjeta.modelo span { font-size: 14px; }
+.tarjeta.modelo.activa { background: rgba(255, 255, 255, .16); border-color: var(--acento); }
+/* El panel de información va debajo del modelo (no encima), así nunca lo tapa */
+.visor-escena { position: relative; display: flex; flex-direction: column; min-height: 0; border-radius: 18px; overflow: hidden; background: rgba(0, 0, 0, .28); border: 2px solid var(--borde); }
+.visor-lienzo { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+.visor-lienzo canvas { position: absolute; left: 0; top: 0; display: block; touch-action: none; }
+.visor-herr { position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; }
+.visor-info {
+  flex-shrink: 0; margin: 0 12px 12px; padding: 12px 18px;
+  background: rgba(3, 31, 43, .82); border: 2px solid var(--borde); border-radius: 16px;
+}
+.info-texto { min-height: 88px; }
+.visor-info p { margin: 4px 0 8px; font-size: 18px; font-weight: 700; }
+.visor-info .info-ayuda { color: var(--suave); }
+.visor-info .info-nombre { display: block; font-size: 22px; color: var(--acento); }
+.visor-info .info-nombre.info-ayuda { color: var(--texto); }
+.info-nota { display: block; margin-top: 6px; color: var(--suave); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { min-height: 44px; padding: 0 16px; font: inherit; font-size: 16px; font-weight: 800; cursor: pointer; color: var(--texto); background: var(--tarjeta); border: 2px solid var(--borde); border-radius: 999px; }
+.chip.activa { background: var(--acento); color: #031F2B; border-color: #031F2B; }
+
+@media (max-width: 900px) {
+  .visor { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .visor-lista { flex-direction: row; overflow-x: auto; overflow-y: hidden; }
+  .tarjeta.modelo { min-width: 220px; }
+}

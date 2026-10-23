@@ -1,0 +1,29 @@
+/* Identidad de Brighter Nexus: neón sobre azul petróleo oscuro (mismo lenguaje que el juego de divisiones).
+   Cada escena redefine el acento y el degradado; todo lo demás usa var(--acento). */
+:root {
+  --lima: #B8FF3B;
+  --cian: #22D3EE;
+  --naranja: #FF8A3D;
+  --rosa: #FF4FB8;
+  --amarillo: #FFD83B;
+  --violeta: #A78BFA;
+
+  --texto: #F2FBFF;
+  --suave: #9CC4D1;
+  --tarjeta: rgba(255, 255, 255, .07);
+  --borde: rgba(255, 255, 255, .16);
+  --radio: 22px;
+  --fuente: "Nunito", "Segoe UI", system-ui, sans-serif;
+
+  --acento: var(--amarillo);
+  --fondo-a: #07627D;
+  --fondo-b: #031F2B;
+}
+
+[data-escena="inicio"]       { --acento: var(--amarillo); --fondo-a: #07627D; --fondo-b: #031F2B; }
+[data-escena="matematica"]   { --acento: var(--cian);     --fondo-a: #0A5C78; --fondo-b: #03202E; }
+[data-escena="lenguaje"]     { --acento: var(--rosa);     --fondo-a: #6B1E5E; --fondo-b: #1E0A24; }
+[data-escena="ciencias"]     { --acento: var(--lima);     --fondo-a: #12623F; --fondo-b: #04200F; }
+[data-escena="biblioteca3d"] { --acento: var(--naranja);  --fondo-a: #6A3410; --fondo-b: #1E0E04; }
+[data-escena="pizarra"]      { --acento: var(--amarillo); --fondo-a: #2B3A42; --fondo-b: #0D1418; }
+[data-escena="mediateca"]    { --acento: var(--violeta);  --fondo-a: #3B2A7A; --fondo-b: #12092E; }

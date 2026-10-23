@@ -1,0 +1,41 @@
+{
+  "id": "leng-prim-cuento-01",
+  "nivel": "primaria",
+  "curso": "lenguaje",
+  "tema": "cuento",
+  "modalidad": "actividad",
+  "plantilla": "ordenar-secuencia",
+  "titulo": "Lenguaje · El cuento",
+  "ejercicios": [
+    {
+      "instruccion": "Ordena el cuento de Lucía: inicio, nudo y desenlace.",
+      "etiquetas": ["Inicio", "Nudo", "Desenlace"],
+      "items": [
+        "Lucía recibió un globo rojo en su cumpleaños.",
+        "El viento se llevó el globo por encima de las casas.",
+        "Un pajarito lo trajo de vuelta y Lucía sonrió."
+      ],
+      "explicacion": "El cuento empieza presentando a Lucía, luego aparece el problema y al final se resuelve."
+    },
+    {
+      "instruccion": "Ordena el cuento de Tomás.",
+      "etiquetas": ["Inicio", "Nudo", "Desenlace"],
+      "items": [
+        "Tomás encontró una semilla en el patio.",
+        "La plantó, la regó todos los días y esperó con paciencia.",
+        "Al fin creció una flor amarilla y Tomás se la regaló a su mamá."
+      ],
+      "explicacion": "Primero la semilla, luego el cuidado y al final la flor."
+    },
+    {
+      "instruccion": "Ordena el cuento del perrito perdido.",
+      "etiquetas": ["Inicio", "Nudo", "Desenlace"],
+      "items": [
+        "Un perrito se perdió en el parque.",
+        "Una niña y su dueño lo buscaron por todos los rincones.",
+        "Lo encontraron bajo un banco y volvieron a casa felices."
+      ],
+      "explicacion": "El problema es que el perrito se pierde; el final feliz es que lo encuentran."
+    }
+  ]
+}
