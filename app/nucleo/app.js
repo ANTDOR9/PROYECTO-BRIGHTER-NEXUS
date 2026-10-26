@@ -12,7 +12,7 @@ import matematica from '../sesiones/matematica/index.js';
 import lenguaje from '../sesiones/lenguaje/index.js';
 import ciencias from '../sesiones/ciencias/index.js';
 import pizarra from '../modulos/pizarra/index.js';
-import biblioteca3d from '../modulos/biblioteca3d/index.js';
+import biblioteca3d, { pantallaVisor, pantallaCreditos } from '../modulos/biblioteca3d/index.js';
 import mediateca from '../modulos/mediateca/index.js';
 
 [matematica, lenguaje, ciencias].forEach(registrarSesion);
@@ -38,6 +38,8 @@ async function arrancar() {
   ruta('/sesion/:id', pantallaSesion);
   ruta('/juego/:sesion/:juego', pantallaJuego);
   ruta('/modulo/:id', pantallaModulo);
+  ruta('/biblioteca3d/ver/:id', pantallaVisor);
+  ruta('/biblioteca3d/creditos', pantallaCreditos);
 
   // Al abrir la app (una vez por sesión) se ve primero la intro
   const destino = location.hash.slice(1);

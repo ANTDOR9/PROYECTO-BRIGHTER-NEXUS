@@ -1,228 +1,215 @@
-// Biblioteca de modelos 3D por nivel y curso. Visor: girar con un dedo, acercar con dos, tocar una parte
-// para ver su nombre. Three.js está incluido en app/bibliotecas/ (funciona sin internet).
-// Prototipo: 3 modelos (corazón, sistema solar, cubo). Modelos en modelos.js.
+// Biblioteca 3D: catálogo con miniaturas, visor a pantalla completa y créditos.
+//
+//  • Catálogo ......... #/modulo/biblioteca3d        (este módulo: tarjetas filtrables por dimensión y nivel)
+//  • Visor ............ #/biblioteca3d/ver/:id       (el visor propio de cada modelo, en un marco a pantalla completa)
+//  • Créditos ......... #/biblioteca3d/creditos      (autor, licencia y cambios de cada modelo)
+//
+// Los modelos descargados los prepara `npm run modelos` (ver herramientas/modelos.js) y quedan en
+// contenido/modelos3d/. El catálogo se lee de contenido/modelos3d/catalogo.json: para agregar un modelo
+// NO hay que tocar este archivo. Los modelos armados en código (sistema solar, cubo) están en modelos.js.
 import { MODELOS } from './modelos.js';
+import { montarVisorCodigo } from './visor-codigo.js';
+import { aplicarEscena } from '../../nucleo/fondo.js';
 
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const el = (tag, clase, texto) => {
   const e = document.createElement(tag);
   if (clase) e.className = clase;
   if (texto != null) e.textContent = texto;
   return e;
 };
-const CURSO = { ciencias: 'Ciencias', matematica: 'Matemática' };
+
+const DIMENSION = {
+  vida: { nombre: 'Ciencias de la vida', color: 'var(--lima)', icono: '🧬' },
+  'fisica-quimica': { nombre: 'Física y química', color: 'var(--naranja)', icono: '⚗️' },
+  'tierra-universo': { nombre: 'Tierra y universo', color: 'var(--violeta)', icono: '🌍' },
+  matematica: { nombre: 'Matemática (geometría)', color: 'var(--cian)', icono: '📐' },
+  'sin-clasificar': { nombre: 'Sin clasificar', color: 'var(--suave)', icono: '🧊' }
+};
+const NIVEL = { primaria: 'Primaria', secundaria: 'Secundaria' };
+// Modelos armados en código que se esconden cuando ya existe uno real equivalente
+const REEMPLAZADO_POR = { corazon: 'corazon-humano' };
+
+// ───────────── datos ─────────────
+
+let cache = null;
+export async function cargarCatalogo() {
+  if (cache) return cache;
+  let reales = [], modo = 'desarrollo';
+  try {
+    const r = await fetch('contenido/modelos3d/catalogo.json');
+    if (r.ok) { const j = await r.json(); reales = j.modelos || []; modo = j.modo || 'desarrollo'; }
+  } catch (e) { /* sin catálogo: solo se ven los modelos armados en código */ }
+  const ids = new Set(reales.map(m => m.id));
+  const items = reales.map(m => ({
+    id: m.id, tipo: 'html', titulo: m.titulo, dimension: DIMENSION[m.dimension] ? m.dimension : 'sin-clasificar',
+    nivel: [].concat(m.nivel || []),
+    descripcion: m.partes && m.partes.length ? `${m.partes.length} partes para explorar` : `${m.paginasInfo || 0} páginas de información`,
+    miniatura: m.archivos && m.archivos.miniatura ? `contenido/modelos3d/${m.archivos.miniatura}` : null,
+    licencia: m.licencia, credito: m.credito, partes: m.partes || []
+  }));
+  MODELOS.filter(m => !(REEMPLAZADO_POR[m.id] && ids.has(REEMPLAZADO_POR[m.id]))).forEach(m => items.push({
+    id: m.id, tipo: 'codigo', titulo: m.nombre, dimension: m.dimension || 'matematica', nivel: [m.nivel],
+    descripcion: m.descripcion, miniatura: null, licencia: null, credito: null, partes: []
+  }));
+  cache = { items, modo };
+  return cache;
+}
+
+const CLAVE_CALIDAD = 'brighterNexus.calidad3d';
+const calidad = () => { try { return localStorage.getItem(CLAVE_CALIDAD) || 'auto'; } catch (e) { return 'auto'; } };
+const guardarCalidad = v => { try { localStorage.setItem(CLAVE_CALIDAD, v); } catch (e) { /* se queda en automática */ } };
+
+// Los filtros se recuerdan al volver del visor
+const filtros = { dimension: 'todas', nivel: 'todos', texto: '' };
+
+// ───────────── catálogo ─────────────
+
+function insigniaLicencia(m, modo) {
+  if (!m.licencia || modo === 'licitacion') return '';
+  if (m.licencia.estado === 'excluir') return '<em class="insignia alerta" title="' + esc(m.licencia.motivo) + '">⚠ No apto licitación</em>';
+  if (m.licencia.estado === 'revisar') return '<em class="insignia revisar" title="' + esc(m.licencia.motivo) + '">Revisar licencia</em>';
+  return '';
+}
+
+function tarjetaModelo(m, modo) {
+  const d = DIMENSION[m.dimension] || DIMENSION['sin-clasificar'];
+  const foto = m.miniatura
+    ? `<img src="${esc(m.miniatura)}" alt="" loading="lazy" decoding="async">`
+    : `<span class="mc-icono" aria-hidden="true">${d.icono}</span>`;
+  const niveles = m.nivel.map(n => `<em class="insignia nivel">${esc(NIVEL[n] || n)}</em>`).join('');
+  return `<a class="modelo-card" href="#/biblioteca3d/ver/${encodeURIComponent(m.id)}" style="--c:${d.color}">
+    <div class="mc-foto">${foto}</div>
+    <div class="mc-cuerpo"><b>${esc(m.titulo)}</b><span>${esc(m.descripcion)}</span>
+    <div class="mc-etiquetas"><em class="mc-dim">${esc(d.nombre)}</em>${niveles}${insigniaLicencia(m, modo)}</div></div></a>`;
+}
 
 export default {
   id: 'biblioteca3d',
   nombre: 'Biblioteca 3D',
   escena: 'biblioteca3d',
-  descripcion: 'Modelos 3D por nivel y curso: girar, acercar y ver las partes.',
+  descripcion: 'Modelos 3D para explorar: girar, acercar y conocer sus partes.',
   estado: 'prototipo',
   compacto: true,
 
   montar(zona) {
     let vivo = true;
-    let limpiar = () => {};
-
-    const raiz = el('div', 'visor');
-    const lista = el('div', 'visor-lista');
-    const escena = el('div', 'visor-escena');
-    const lienzo = el('div', 'visor-lienzo');
-    const info = el('div', 'visor-info');
-    const herramientas = el('div', 'visor-herr');
-    escena.append(lienzo, herramientas, info);
-    raiz.append(lista, escena);
+    const raiz = el('div', 'bib');
+    raiz.innerHTML = '<p class="lead">Cargando la biblioteca…</p>';
     zona.appendChild(raiz);
-    info.textContent = 'Cargando el visor 3D…';
 
-    (async () => {
-      const THREE = await import('../../bibliotecas/three.module.min.js');
-      const { OrbitControls } = await import('../../bibliotecas/OrbitControls.js');
+    cargarCatalogo().then(({ items, modo }) => {
       if (!vivo) return;
-      limpiar = iniciar(THREE, OrbitControls);
-    })().catch(e => {
-      console.error(e);
-      info.textContent = 'No se pudo cargar el visor 3D en este equipo.';
+      const dims = [...new Set(items.map(m => m.dimension))];
+      raiz.innerHTML = `
+        <div class="bib-filtros">
+          <div class="chips" data-g="dimension" role="group" aria-label="Tema"></div>
+          <div class="chips" data-g="nivel" role="group" aria-label="Nivel"></div>
+          <input class="bib-buscar" type="search" placeholder="🔍  Buscar modelo…" aria-label="Buscar modelo" autocomplete="off">
+        </div>
+        <div class="rejilla bib-rejilla"></div>
+        <p class="bib-vacio" hidden>No hay modelos con esos filtros.</p>
+        <div class="bib-pie">
+          <div class="chips" data-g="calidad" role="group" aria-label="Calidad de los modelos"></div>
+          <span class="bib-ayuda">Calidad: «Ligera» abre más rápido en equipos modestos.</span>
+          <a class="bib-creditos" href="#/biblioteca3d/creditos">Créditos y licencias</a>
+        </div>`;
+      const g = nombre => raiz.querySelector(`[data-g="${nombre}"]`);
+      const opciones = {
+        dimension: [['todas', 'Todos los temas'], ...dims.map(d => [d, (DIMENSION[d] || DIMENSION['sin-clasificar']).nombre])],
+        nivel: [['todos', 'Todos los niveles'], ['primaria', 'Primaria'], ['secundaria', 'Secundaria']],
+        calidad: [['auto', 'Automática'], ['alta', 'Alta'], ['ligera', 'Ligera']]
+      };
+      const buscar = raiz.querySelector('.bib-buscar');
+      buscar.value = filtros.texto;
+
+      function pintarChips() {
+        for (const [grupo, lista] of Object.entries(opciones)) {
+          const actual = grupo === 'calidad' ? calidad() : filtros[grupo];
+          g(grupo).replaceChildren(...lista.map(([v, t]) => {
+            const c = el('button', 'chip' + (v === actual ? ' activa' : ''), t);
+            c.type = 'button';
+            c.addEventListener('click', () => {
+              if (grupo === 'calidad') guardarCalidad(v); else filtros[grupo] = v;
+              pintarChips(); pintarRejilla();
+            });
+            return c;
+          }));
+        }
+      }
+      function pintarRejilla() {
+        const t = filtros.texto.trim().toLowerCase();
+        const lista = items.filter(m =>
+          (filtros.dimension === 'todas' || m.dimension === filtros.dimension) &&
+          (filtros.nivel === 'todos' || m.nivel.includes(filtros.nivel)) &&
+          (!t || (m.titulo + ' ' + m.partes.join(' ')).toLowerCase().includes(t)));
+        raiz.querySelector('.bib-rejilla').innerHTML = lista.map(m => tarjetaModelo(m, modo)).join('');
+        raiz.querySelector('.bib-vacio').hidden = lista.length > 0;
+      }
+      buscar.addEventListener('input', () => { filtros.texto = buscar.value; pintarRejilla(); });
+      pintarChips();
+      pintarRejilla();
     });
 
-    function iniciar(THREE, OrbitControls) {
-      let renderer;
-      try {
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      } catch (e) {
-        info.textContent = 'Este equipo no permite gráficos 3D (WebGL).';
-        return () => {};
-      }
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-      lienzo.appendChild(renderer.domElement);
-
-      const camara = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
-      const controles = new OrbitControls(camara, renderer.domElement);
-      controles.enableDamping = true;
-      controles.dampingFactor = 0.08;
-      controles.autoRotateSpeed = 1.6;
-
-      const escenaTHREE = new THREE.Scene();
-      const ambiente = new THREE.AmbientLight(0xFFFFFF, 0.8);
-      const direccional = new THREE.DirectionalLight(0xFFFFFF, 1.5);
-      direccional.position.set(4, 6, 5);
-      escenaTHREE.add(ambiente, direccional);
-
-      let modelo = null, elegida = null, camaraInicial = null;
-      let cuadro = 0, ultimo = performance.now();
-      const raycaster = new THREE.Raycaster();
-      const puntero = new THREE.Vector2();
-
-      // ----- panel de modelos -----
-      const tarjetas = new Map();
-      MODELOS.forEach(m => {
-        const t = el('button', 'tarjeta modelo');
-        t.type = 'button';
-        t.append(el('b', null, m.nombre), el('span', null, m.descripcion), el('em', 'insignia', `${CURSO[m.curso]} · ${m.nivel}`));
-        t.addEventListener('click', () => cargar(m));
-        lista.appendChild(t);
-        tarjetas.set(m.id, t);
-      });
-
-      // ----- herramientas del visor -----
-      const bGirar = el('button', 'herr', null);
-      bGirar.type = 'button';
-      bGirar.innerHTML = '<span class="ico">⟳</span><small>Girar solo</small>';
-      bGirar.addEventListener('click', () => {
-        controles.autoRotate = !controles.autoRotate;
-        bGirar.classList.toggle('activa', controles.autoRotate);
-      });
-      const bVista = el('button', 'herr');
-      bVista.type = 'button';
-      bVista.innerHTML = '<span class="ico">⌂</span><small>Vista inicial</small>';
-      bVista.addEventListener('click', () => { if (camaraInicial) ponerCamara(camaraInicial); });
-      herramientas.append(bGirar, bVista);
-
-      function ponerCamara(c) {
-        camara.position.set(...c.pos);
-        controles.target.set(0, 0, 0);
-        controles.minDistance = c.dist[0];
-        controles.maxDistance = c.dist[1];
-        controles.update();
-      }
-
-      // ----- resaltar partes -----
-      function marcar(parte, encendido) {
-        parte.objetos.forEach(o => {
-          const mt = o.material;
-          if (!mt || !mt.emissive) return;
-          if (!mt.userData.base) mt.userData.base = { color: mt.emissive.clone(), fuerza: mt.emissiveIntensity };
-          if (encendido) { mt.emissive.setHex(0xFFFFFF); mt.emissiveIntensity = 0.55; }
-          else { mt.emissive.copy(mt.userData.base.color); mt.emissiveIntensity = mt.userData.base.fuerza; }
-        });
-      }
-      function elegir(parte) {
-        if (elegida) marcar(elegida, false);
-        elegida = elegida === parte ? null : parte;
-        if (elegida) marcar(elegida, true);
-        pintarInfo();
-      }
-      function pintarInfo() {
-        info.innerHTML = '';
-        // El bloque de texto siempre ocupa el mismo alto: así el modelo no cambia de tamaño al elegir una parte
-        const texto = el('div', 'info-texto');
-        if (elegida) {
-          texto.append(el('b', 'info-nombre', elegida.nombre), el('p', null, elegida.texto));
-        } else {
-          texto.append(el('b', 'info-nombre info-ayuda', modelo.nombre), el('p', 'info-ayuda', 'Toca una parte para conocerla. Gira con un dedo y acerca con dos.'));
-        }
-        info.appendChild(texto);
-        const chips = el('div', 'chips');
-        modelo.partes.forEach(p => {
-          const c = el('button', 'chip' + (p === elegida ? ' activa' : ''), p.nombre);
-          c.type = 'button';
-          c.addEventListener('click', () => elegir(p));
-          chips.appendChild(c);
-        });
-        info.appendChild(chips);
-        if (modelo.nota) info.appendChild(el('small', 'info-nota', modelo.nota));
-      }
-
-      // ----- cargar y descartar modelos -----
-      function descartar() {
-        if (!modelo) return;
-        escenaTHREE.remove(modelo.grupo);
-        modelo.grupo.traverse(o => {
-          if (o.geometry) o.geometry.dispose();
-          if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => m.dispose());
-        });
-        modelo = null; elegida = null;
-      }
-      function cargar(def) {
-        descartar();
-        modelo = def.crear(THREE);
-        modelo.nombre = def.nombre;
-        escenaTHREE.add(modelo.grupo);
-        // Si el modelo trae su propia luz (el Sol), se baja la luz de ambiente y se quita la direccional
-        direccional.visible = modelo.luces !== 'sol';
-        ambiente.intensity = modelo.luces === 'sol' ? 0.35 : 0.8;
-        camaraInicial = modelo.camara;
-        ponerCamara(camaraInicial);
-        tarjetas.forEach((t, id) => t.classList.toggle('activa', id === def.id));
-        pintarInfo();
-      }
-
-      // ----- tocar una parte (se distingue del arrastre para girar) -----
-      let inicio = null;
-      const lienzoPantalla = renderer.domElement;
-      lienzoPantalla.addEventListener('pointerdown', e => { inicio = { x: e.clientX, y: e.clientY, t: performance.now() }; });
-      lienzoPantalla.addEventListener('pointerup', e => {
-        if (!inicio || !modelo) return;
-        const toque = Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) < 8 && performance.now() - inicio.t < 500;
-        inicio = null;
-        if (!toque) return;
-        const r = lienzoPantalla.getBoundingClientRect();
-        puntero.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-        raycaster.setFromCamera(puntero, camara);
-        const blancos = [];
-        modelo.partes.forEach(p => blancos.push(...p.pick));
-        const hit = raycaster.intersectObjects(blancos, false)[0];
-        if (hit && hit.object.userData.parte) elegir(hit.object.userData.parte);
-        else if (elegida) elegir(elegida); // tocar el vacío quita la selección
-      });
-
-      // ----- tamaño y animación -----
-      function ajustar() {
-        const w = lienzo.clientWidth, h = lienzo.clientHeight;
-        if (w < 2 || h < 2) return;
-        renderer.setSize(w, h, false);
-        lienzoPantalla.style.width = w + 'px';
-        lienzoPantalla.style.height = h + 'px';
-        camara.aspect = w / h;
-        camara.updateProjectionMatrix();
-        // Cambiar el tamaño borra el lienzo: se vuelve a dibujar de inmediato para que no parpadee
-        if (modelo) renderer.render(escenaTHREE, camara);
-      }
-      const observador = new ResizeObserver(ajustar);
-      observador.observe(lienzo);
-      ajustar();
-
-      function bucle(ahora) {
-        cuadro = requestAnimationFrame(bucle);
-        const dt = Math.min(0.1, (ahora - ultimo) / 1000);
-        ultimo = ahora;
-        if (modelo && modelo.animar) modelo.animar(dt);
-        controles.update();
-        renderer.render(escenaTHREE, camara);
-      }
-      cuadro = requestAnimationFrame(bucle);
-
-      cargar(MODELOS[0]);
-
-      return () => {
-        cancelAnimationFrame(cuadro);
-        observador.disconnect();
-        controles.dispose();
-        descartar();
-        renderer.dispose();
-        if (renderer.forceContextLoss) renderer.forceContextLoss();
-      };
-    }
-
-    return () => { vivo = false; limpiar(); };
+    return () => { vivo = false; };
   }
 };
+
+// ───────────── visor a pantalla completa ─────────────
+
+export async function pantallaVisor({ id }, cont) {
+  aplicarEscena('biblioteca3d');
+  const { items } = await cargarCatalogo();
+  const m = items.find(x => x.id === id);
+  if (!m) { location.hash = '#/modulo/biblioteca3d'; return; }
+
+  if (m.tipo === 'codigo') {
+    cont.innerHTML = `<div class="cab-compacta"><a class="volver" href="#/modulo/biblioteca3d">← Biblioteca</a><h1>${esc(m.titulo)}</h1></div>`;
+    const zona = document.createElement('div');
+    cont.appendChild(zona);
+    return montarVisorCodigo(zona, id);
+  }
+
+  // Modelo descargado: su visor se muestra tal cual, a pantalla completa, y Nexus solo pone el botón de volver
+  document.body.classList.add('en-visor3d');
+  const marco = document.createElement('iframe');
+  marco.className = 'visor3d-marco';
+  marco.title = m.titulo;
+  marco.src = `contenido/modelos3d/${encodeURIComponent(m.id)}/index.html?calidad=${calidad()}`;
+  const volver = el('a', 'visor3d-volver', '← Biblioteca');
+  volver.href = '#/modulo/biblioteca3d';
+  cont.append(marco, volver);
+  return () => {
+    document.body.classList.remove('en-visor3d');
+    try { marco.src = 'about:blank'; } catch (e) { /* ya cerrado */ }   // libera la memoria de video del modelo
+    marco.remove();
+  };
+}
+
+// ───────────── créditos ─────────────
+
+export async function pantallaCreditos(_p, cont) {
+  aplicarEscena('biblioteca3d');
+  const { items, modo } = await cargarCatalogo();
+  const reales = items.filter(m => m.tipo === 'html');
+  const enlace = (url, texto) => url ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(texto || url)}</a>` : esc(texto || '');
+  cont.innerHTML = `
+    <p class="migas"><a href="#/modulo/biblioteca3d">← Biblioteca 3D</a></p>
+    <h1>Créditos y licencias</h1>
+    <p class="lead">Los modelos 3D de esta biblioteca son obra de sus autores y se usan según la licencia que cada uno eligió.</p>
+    <div class="creditos-lista">${reales.length ? reales.map(m => `
+      <article class="credito">
+        <h3>${esc(m.credito.titulo || m.titulo)} ${insigniaLicencia(m, modo)}</h3>
+        <p>Autor: <b>${enlace(m.credito.autorUrl, m.credito.autor)}</b></p>
+        <p>Licencia: ${enlace(m.licencia.url, m.licencia.texto || m.licencia.codigo)}</p>
+        <p>Fuente: ${enlace(m.credito.fuente)}</p>
+        ${m.credito.cambios ? `<p>Cambios hechos para esta app: ${esc(m.credito.cambios)}</p>` : ''}
+        ${m.credito.atribucion ? `<p class="credito-atrib">${esc(m.credito.atribucion)}</p>` : ''}
+      </article>`).join('') : '<p class="lead">Todavía no hay modelos descargados.</p>'}
+      <article class="credito">
+        <h3>Programas incluidos</h3>
+        <p>three.js (licencia MIT) · meshoptimizer (licencia MIT, Arseny Kapoulkine).</p>
+        <p>El sistema solar y el cubo fueron creados por Brighter Perú S.A.C. para Nexus.</p>
+      </article>
+    </div>`;
+}

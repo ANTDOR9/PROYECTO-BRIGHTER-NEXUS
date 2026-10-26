@@ -33,10 +33,11 @@ brighter-nexus/
 │  ├─ bibliotecas/        Three.js y OrbitControls incluidos (el visor 3D funciona sin internet)
 │  ├─ sesiones/           matematica/ · lenguaje/ · ciencias/  (cada una con su manifiesto)
 │  │   └─ matematica/divisiones/   primer juego a migrar desde el repositorio de divisiones
-│  ├─ modulos/            pizarra/ · biblioteca3d/ (con modelos.js) · mediateca/
-│  └─ contenido/          datos (JSON): actividades, intro.json y requisitos de las bases
-├─ herramientas/          servir.js · verificar-kit.js
-├─ pruebas/               probar-puntaje.js · probar-prototipo.mjs (navegador real)
+│  ├─ modulos/            pizarra/ · biblioteca3d/ (catálogo, visor, créditos) · mediateca/
+│  └─ contenido/          datos: actividades (JSON), intro.json, requisitos de las bases y modelos3d/ (lo genera `npm run modelos`)
+├─ herramientas/          servir.js · verificar-kit.js · modelos.js (prepara los modelos 3D)
+├─ modelos-entrada/       (no se sube) aquí se dejan los visores .html nuevos antes de procesarlos
+├─ pruebas/               probar-puntaje.js · probar-modelos.js · probar-prototipo.mjs (navegador real) · medir-modelos.mjs
 └─ docs/
 ```
 
@@ -130,20 +131,63 @@ Al migrar se quitan los campos de autor y licencia del código de origen.
 ## Decisiones abiertas
 
 - **Multitáctil y equipos:** el motor actual es de un alumno por vez. Las clases-juego por equipos necesitan un perfil de equipo.
-- **Visor 3D:** three.js con modelos glTF/GLB libres de derechos.
+- **Visor 3D:** resuelto con visores por modelo (ver «Biblioteca 3D y modelos»). Falta probar en una BTOUCH real y definir si algún día se unifican en un solo visor compartido.
 - **Mínimos de las bases:** los números en `kit-requisitos.json` vienen del informe técnico. Confirmar con las bases originales.
 - **Fuentes y sonidos:** reusar los de divisiones o definir nuevos para Nexus.
 
-## Prototipo v0.2: lo que hay y cómo se probó
+## Prototipo v0.3: lo que hay y cómo se probó
 
 - **Intro:** al abrir la app se ve una vez por sesión. Hoy es un marco 16:9 con el logo y la etiqueta "Espacio reservado para la intro". Se cambia por video o imagen desde `intro.json`.
 - **Pizarra:** los trazos se guardan con coordenadas relativas al ancho, así la clase se ve igual en cualquier pantalla. Cada dedo dibuja su propio trazo. La clase se guarda sola y se restaura al volver. Falta insertar imagen, PDF o video, varias páginas y texto.
 - **Biblioteca 3D:** los 3 modelos se arman en código con figuras simples (corazón y sistema solar son versiones simplificadas). El contrato en `modelos.js` permite cambiarlos por archivos glTF/GLB más adelante sin tocar el visor. El panel de información no cambia de tamaño al elegir una parte, para que el modelo no "salte".
 - **Actividades:** las tres pasan por `ronda.js` y el mismo motor de puntaje; el progreso queda por juego (`matematica/multiplicacion`, `lenguaje/cuento`, `ciencias/vida`).
-- **Pruebas:** 12 del motor de puntaje (`npm run pruebas`) y 25 de extremo a extremo en Chromium (`npm run prueba:prototipo`).
+- **Pruebas:** 12 del motor de puntaje y 10 de licencias (`npm run pruebas`), y 70 de extremo a extremo en Chromium (`npm run prueba:prototipo`).
+
+## Biblioteca 3D y modelos
+
+La biblioteca tiene tres pantallas (rutas en `app.js`):
+
+| Pantalla | Ruta | Qué hace |
+| --- | --- | --- |
+| Catálogo | `#/modulo/biblioteca3d` | Tarjetas con miniatura, filtros por tema y nivel, buscador por nombre de modelo o de sus partes, selector de calidad |
+| Visor | `#/biblioteca3d/ver/:id` | El visor del modelo a pantalla completa. Nexus solo agrega el botón «← Biblioteca» (arriba al centro, donde el visor no tiene nada) |
+| Créditos | `#/biblioteca3d/creditos` | Autor, licencia, fuente y cambios de cada modelo (obligatorio con CC BY) |
+
+**Dos clases de modelo** conviven en el catálogo:
+- *Descargados* (`tipo: html`): cada uno tiene su propia carpeta `contenido/modelos3d/<id>/` con `index.html` (el visor), `modelo.glb`, `modelo-ligero.glb` y `miniatura.webp`. Se muestran dentro de un `<iframe>` del mismo origen, así su interfaz propia no choca con la de Nexus.
+- *En código* (`tipo: codigo`): sistema solar y cubo, armados con figuras (`modelos.js`, visor en `visor-codigo.js`). El corazón en código se oculta si existe el real.
+
+**Catálogo y datos.** `contenido/modelos3d/catalogo.json` lo genera `npm run modelos` (no se edita a mano). Lo que sí se cura a mano está en `metadatos.json` (nivel, tema, orden) y nunca se pisa al reprocesar.
+
+### El proceso `npm run modelos`
+
+```
+npm run modelos                          # procesa modelos-entrada/
+npm run modelos -- "C:\ruta\MODELOS 3D"  # o cualquier otra carpeta
+npm run modelos:licitacion               # deja SOLO los modelos de uso comercial
+npm run medir:modelos                    # tiempos, fluidez y memoria: original contra nuevo
+```
+
+Para cada visor `.html`: saca el modelo y la configuración que traía incrustados → clasifica la licencia → detecta duplicados por contenido → comprime (normal: texturas ≤2048; ligero: texturas ≤1024 y la mitad de los triángulos; ambos con meshopt y WebP) → reescribe el visor para que cargue el modelo como archivo con barra de progreso → genera la miniatura transparente → actualiza el catálogo. Lo ya procesado y sin cambios se salta (`--forzar` lo rehace).
+
+**Licencias** (`clasificarLicencia`, con pruebas en `probar-modelos.js`):
+
+| Estado | Cuándo | Qué pasa |
+| --- | --- | --- |
+| `ok` | CC0, CC BY | Entra a la licitación |
+| `revisar` | CC BY-SA, «Estándar», licencia desconocida | Entra al catálogo con aviso; hay que decidirlo a mano |
+| `excluir` | cualquier NC (no comercial) o ND (sin obras derivadas) | Lleva el aviso «No apto licitación»; `modelos:licitacion` lo saca de la app |
+
+**Calidad.** El visor elige solo: «ligera» si el equipo reporta 4 GB de memoria o menos, o 4 núcleos o menos. La persona puede forzar Alta o Ligera en el catálogo (se recuerda en el equipo). También se puede abrir un visor directo con `?calidad=ligera`.
+
+**Si un lote nuevo trae otro formato.** El proceso espera visores con `window.__CFG__` y `window.__GLB__`. Si el código del visor es distinto, lo copia sin optimizar y lo avisa; si ni siquiera tiene esa estructura, lo omite y lo dice. En ese caso hay que ajustar `herramientas/modelos.js`.
+
+**Límite conocido.** Cada visor distinto trae su propia copia de three.js (unos 700 KB). Con muchos modelos conviene unificarlos en un solo visor compartido (quedaría un three.js y un lugar donde corregir la interfaz).
 
 ## Cosas a tener en cuenta al empaquetar
 
 - **No usar `file://`.** Los módulos ES y `fetch` de los JSON no funcionan abriendo el HTML como archivo. En Windows (Electron) y Android (Capacitor) hay que servir `app/` por un esquema propio o un servidor local. Capacitor ya lo hace por defecto; en Electron conviene `protocol.handle` o un servidor interno.
 - **Guardar imagen** de la pizarra usa una descarga del navegador. En Electron y en Android hay que conectarlo con el sistema de archivos (en divisiones se hizo con Capacitor Filesystem).
 - **Probado:** Chromium con WebGL por software, con ratón y con toques simulados. Falta probar en una pantalla BTOUCH real, sobre todo el multitáctil con varios dedos y la velocidad del visor 3D.
+- **Marcos (`iframe`) y la política de seguridad:** `index.html` permite `frame-src 'self'` para mostrar los visores de los modelos. Los visores traen scripts propios en línea; funcionan porque son documentos aparte (la política de la página principal no se hereda). Si un día se sirven con `srcdoc` o `blob:`, sí heredarían la política y dejarían de funcionar.
+- **Modelos comprimidos y WebAssembly:** el decodificador meshopt es WebAssembly. Lo traen todos los navegadores actuales y WebView de Android; si algún empaquetado lo bloquea, el visor mostrará «No se pudo cargar el modelo».

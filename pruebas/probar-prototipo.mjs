@@ -188,48 +188,109 @@ comprobar(n === 0, 'pizarra: segundo toque borra todo');
 const [descarga] = await Promise.all([page.waitForEvent('download'), page.click('.herr:has(small:text-is("Guardar imagen"))')]);
 comprobar(/^pizarra-\d{4}-\d{2}-\d{2}-\d{4}\.png$/.test(descarga.suggestedFilename()), 'pizarra: guardar imagen descarga ' + descarga.suggestedFilename());
 
-// ---------- visor 3D ----------
+// ---------- biblioteca 3D: catálogo ----------
 await page.goto(BASE + '#/modulo/biblioteca3d');
+await page.waitForSelector('.modelo-card', { timeout: 15000 });
+await page.waitForTimeout(600);
+const cat = await (await page.request.get(BASE + 'contenido/modelos3d/catalogo.json')).json();
+const reales = cat.modelos;
+const nTarjetas = await page.locator('.modelo-card').count();
+comprobar(nTarjetas >= reales.length, `biblioteca: el catálogo muestra ${nTarjetas} tarjetas (${reales.length} modelos descargados + los armados en código)`);
+await page.screenshot({ path: SALIDA + '/09-biblioteca-catalogo.png' });
+// cada modelo con miniatura la muestra de verdad (no una imagen rota)
+const conMini = reales.filter(m => m.archivos.miniatura).length;
+const imgOk = await page.evaluate(() => [...document.querySelectorAll('.mc-foto img')].filter(i => i.complete && i.naturalWidth > 0).length);
+comprobar(imgOk === conMini, `biblioteca: ${imgOk} de ${conMini} miniaturas cargan bien`);
+// los que no tienen miniatura usan el ícono de su tema (el catálogo nunca queda "vacío")
+const sinMini = await page.locator('.mc-foto .mc-icono').count();
+comprobar(sinMini === nTarjetas - conMini, `biblioteca: ${sinMini} tarjetas sin foto muestran un ícono de respaldo`);
+// filtros y búsqueda
+await page.click('.chip:text-is("Matemática (geometría)")');
+comprobar((await page.locator('.modelo-card').count()) === 1, 'biblioteca: filtrar por Matemática deja solo el cubo');
+await page.click('.chip:text-is("Todos los temas")');
+await page.fill('.bib-buscar', 'golgi');
+const conGolgi = await page.locator('.modelo-card').count();
+comprobar(conGolgi >= 1 && conGolgi < nTarjetas, `biblioteca: buscar "golgi" encuentra ${conGolgi} modelo(s) por el nombre de sus partes`);
+await page.fill('.bib-buscar', 'zzzz');
+comprobar(await page.isVisible('.bib-vacio'), 'biblioteca: sin resultados muestra un aviso');
+await page.fill('.bib-buscar', '');
+// los modelos de uso no comercial se ven marcados mientras se desarrolla
+const noAptos = reales.filter(m => m.licencia.estado === 'excluir').length;
+comprobar((await page.locator('.insignia.alerta').count()) === noAptos, `biblioteca: ${noAptos} modelo(s) de uso no comercial llevan el aviso "No apto licitación"`);
+
+// ---------- integridad de los archivos de cada modelo ----------
+for (const m of reales) {
+  const glb = await page.request.get(BASE + 'contenido/modelos3d/' + m.archivos.glb);
+  const lig = await page.request.get(BASE + 'contenido/modelos3d/' + m.archivos.glbLigero);
+  const cab = (await glb.body()).subarray(0, 4).toString();
+  comprobar(glb.ok() && lig.ok() && cab === 'glTF', `modelo ${m.id}: modelo.glb y modelo-ligero.glb existen y son GLB válidos`);
+  comprobar((await lig.body()).length < (await glb.body()).length, `modelo ${m.id}: la versión ligera pesa menos que la normal`);
+  comprobar(m.licencia.estado !== 'excluir' || m.licencia.comercial === false || m.licencia.modificable === false, `modelo ${m.id}: la clasificación de licencia es coherente`);
+}
+
+// ---------- visor de un modelo descargado (marco a pantalla completa) ----------
+const prueba = reales.find(m => m.licencia.estado === 'ok' && m.partes.length > 3) || reales[0];
+await page.goto(BASE + '#/biblioteca3d/ver/' + prueba.id);
+await page.waitForSelector('iframe.visor3d-marco', { timeout: 15000 });
+await page.waitForFunction(() => document.querySelector('iframe') && document.querySelector('iframe').contentWindow.__ready === true, null, { timeout: 120000 });
+await page.waitForTimeout(1200);
+comprobar(await page.evaluate(() => document.body.classList.contains('en-visor3d')), 'visor 3D: la barra de Nexus se oculta mientras se ve el modelo');
+const marcoVisor = page.frames().find(f => f !== page.mainFrame() && f.url().includes('/modelos3d/'));
+comprobar(!!marcoVisor && (await marcoVisor.locator('#left .row').count()) === prueba.partes.length, `visor 3D: ${prueba.titulo} lista sus ${prueba.partes.length} partes`);
+await page.screenshot({ path: SALIDA + '/10-visor-modelo.png' });
+// la interfaz del visor no queda tapada por el botón de Nexus
+const rVolver = await page.locator('.visor3d-volver').boundingBox();
+const rTitulo = await marcoVisor.locator('#head').boundingBox();
+const rBotones = await marcoVisor.locator('#top').boundingBox();
+const choca = (a, b) => a && b && a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
+comprobar(!choca(rVolver, rTitulo) && !choca(rVolver, rBotones), 'visor 3D: el botón "← Biblioteca" no tapa el título ni los botones del visor');
+// tocar una parte de la lista cambia el panel de información
+await marcoVisor.locator('#left .row').nth(1).click();
+await page.waitForTimeout(500);
+const nombreParte = await marcoVisor.locator('#left .row').nth(1).textContent();
+comprobar((await marcoVisor.locator('#it').textContent()).trim() === nombreParte.trim(), 'visor 3D: elegir una parte muestra su información');
+// volver libera el visor (si quedara vivo, seguiría gastando memoria de video)
+await page.click('.visor3d-volver');
+await page.waitForSelector('.modelo-card');
+comprobar((await page.locator('iframe').count()) === 0, 'visor 3D: al volver, el marco del modelo se elimina');
+comprobar(!(await page.evaluate(() => document.body.classList.contains('en-visor3d'))), 'visor 3D: al volver, la barra de Nexus reaparece');
+// las dos calidades abren
+for (const q of ['ligera', 'alta']) {
+  await page.evaluate(v => localStorage.setItem('brighterNexus.calidad3d', v), q);
+  await page.goto(BASE + '#/modulo/biblioteca3d');            // pasar por el catálogo: así no se confunde con el marco anterior
+  await page.waitForSelector('.modelo-card');
+  await page.goto(BASE + '#/biblioteca3d/ver/' + prueba.id);
+  await page.waitForFunction(() => document.querySelector('iframe') && document.querySelector('iframe').contentWindow.__ready === true, null, { timeout: 120000 });
+  const usado = await page.evaluate(() => document.querySelector('iframe').contentWindow.__PR__);
+  comprobar(usado === (q === 'ligera' ? 1.5 : 2), `visor 3D: calidad "${q}" aplicada (densidad de píxeles ${usado})`);
+}
+await page.evaluate(() => localStorage.removeItem('brighterNexus.calidad3d'));
+
+// ---------- créditos ----------
+await page.goto(BASE + '#/biblioteca3d/creditos');
+await page.waitForSelector('.credito');
+const nCred = await page.locator('.credito').count();
+comprobar(nCred === reales.length + 1, `créditos: aparece cada modelo (${reales.length}) y la sección de programas`);
+const textoCred = await page.textContent('.creditos-lista');
+comprobar(reales.every(m => textoCred.includes(m.credito.autor)), 'créditos: se nombra al autor de cada modelo');
+comprobar(reales.every(m => textoCred.includes(m.licencia.texto.slice(0, 12))), 'créditos: se indica la licencia de cada modelo');
+
+// ---------- modelos armados en código ----------
+await page.goto(BASE + '#/biblioteca3d/ver/sistema-solar');
 await page.waitForSelector('.visor-lienzo canvas', { timeout: 15000 });
 await page.waitForTimeout(1200);
-const pixeles = async () => page.evaluate(() => {
-  const c = document.querySelector('.visor-lienzo canvas');
-  const t = document.createElement('canvas'); t.width = c.width; t.height = c.height;
-  const g = t.getContext('2d'); g.drawImage(c, 0, 0);
-  const d = g.getImageData(0, 0, t.width, t.height).data; let k = 0;
-  for (let i = 3; i < d.length; i += 4 * 53) if (d[i] > 20) k++; return k;
-});
-// el lienzo WebGL se lee justo tras renderizar, por eso se fuerza un render antes de copiar
-const modelos = ['El corazón', 'Sistema solar', 'El cubo'];
-for (let m = 0; m < modelos.length; m++) {
-  await page.click(`.tarjeta.modelo:has-text("${modelos[m]}")`);
-  await page.waitForTimeout(900);
-  await page.screenshot({ path: `${SALIDA}/09-visor-${m + 1}.png` });
-}
-// tocar una parte: el Sol (centro del lienzo) en el sistema solar
-await page.click('.tarjeta.modelo:has-text("Sistema solar")');
-await page.waitForTimeout(700);
 await page.click('.chip:text-is("Tierra")');
-comprobar((await page.textContent('.info-nombre')) === 'Tierra', 'visor: elegir una parte con la lista muestra su nombre');
-await page.screenshot({ path: SALIDA + '/10-visor-tierra.png' });
-// tocar directamente en el modelo (corazón): se prueba con un clic real sobre el lienzo
-await page.click('.tarjeta.modelo:has-text("El corazón")');
-await page.waitForTimeout(700);
-const lienzoCaja = await page.locator('.visor-lienzo canvas').boundingBox();
-let nombreTocado = null;
-for (const [fx, fy] of [[0.5, 0.5], [0.55, 0.55], [0.45, 0.5], [0.5, 0.62], [0.58, 0.5], [0.42, 0.42]]) {
-  await page.mouse.click(lienzoCaja.x + lienzoCaja.width * fx, lienzoCaja.y + lienzoCaja.height * fy);
-  const t = await page.$('.info-nombre:not(.info-ayuda)');
-  if (t) { nombreTocado = await t.textContent(); break; }
-}
-comprobar(!!nombreTocado, 'visor: tocar el corazón directamente selecciona una parte → ' + nombreTocado);
-await page.screenshot({ path: SALIDA + '/11-visor-corazon-tocado.png' });
-// cubo: contadores
-await page.click('.tarjeta.modelo:has-text("El cubo")');
+comprobar((await page.textContent('.info-nombre')) === 'Tierra', 'visor en código: elegir una parte con la lista muestra su nombre');
+await page.screenshot({ path: SALIDA + '/11-visor-tierra.png' });
+await page.goto(BASE + '#/biblioteca3d/ver/cubo');
+await page.waitForSelector('.visor-lienzo canvas');
 await page.waitForTimeout(500);
 await page.click('.chip:has-text("Vértices")');
-comprobar((await page.textContent('.visor-info')).includes('8'), 'visor: el cubo explica los 8 vértices');
-// salir libera el contexto WebGL sin errores
+comprobar((await page.textContent('.visor-info')).includes('8'), 'visor en código: el cubo explica los 8 vértices');
+// un modelo que no existe vuelve al catálogo
+await page.goto(BASE + '#/biblioteca3d/ver/no-existe');
+await page.waitForSelector('.modelo-card');
+comprobar(true, 'biblioteca: un modelo que no existe devuelve al catálogo');
 await page.goto(BASE + '#/');
 await page.waitForTimeout(300);
 
