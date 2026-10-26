@@ -179,24 +179,60 @@ async function cargarHerramientasGlb() {
     const io = new core.NodeIO().registerExtensions(ext.ALL_EXTENSIONS).registerDependencies({
       'meshopt.decoder': mo.MeshoptDecoder, 'meshopt.encoder': mo.MeshoptEncoder
     });
-    herramientasGlb = { io, fn, mo, sharp, Logger: core.Logger };
+    herramientasGlb = { io, fn, mo, sharp, Logger: core.Logger, ext };
     return herramientasGlb;
   } catch (e) {
     throw new Error('Faltan las herramientas de compresión. Ejecuta:  npm install\n   (' + e.message + ')');
   }
 }
 
-/** ligero=false → modelo normal (texturas ≤2048). ligero=true → texturas ≤1024 y menos triángulos. */
-async function comprimir(glb, ligero) {
-  const { io, fn, mo, sharp, Logger } = await cargarHerramientasGlb();
+/**
+ * Comprime un GLB. ligero=false → modelo normal (texturas ≤2048). ligero=true → texturas ≤1024 y menos triángulos.
+ * seguro=true → no cuantiza ni simplifica la geometría (para modelos con esqueleto/animación: three.js no los
+ * dibuja bien si se les cuantiza la posición, y al simplificarlos se rompe el vínculo con los huesos).
+ */
+async function comprimir(glb, ligero, seguro) {
+  const { io, fn, mo, sharp, Logger, ext } = await cargarHerramientasGlb();
   const doc = await io.readBinary(new Uint8Array(glb));
-  doc.setLogger(new Logger(Logger.Verbosity.WARN));
+  doc.setLogger(new Logger(Logger.Verbosity.ERROR));
   const pasos = [fn.dedup(), fn.prune()];
-  if (ligero) pasos.push(fn.weld(), fn.simplify({ simplifier: mo.MeshoptSimplifier, ratio: 0.5, error: 0.01, lockBorder: true }));
+  if (ligero && !seguro) pasos.push(fn.weld(), fn.simplify({ simplifier: mo.MeshoptSimplifier, ratio: 0.5, error: 0.01, lockBorder: true }));
   pasos.push(fn.textureCompress({ encoder: sharp, targetFormat: 'webp', resize: ligero ? [1024, 1024] : [2048, 2048], quality: ligero ? 78 : 85 }));
-  pasos.push(fn.meshopt({ encoder: mo.MeshoptEncoder, level: 'high' }));
-  await doc.transform(...pasos);
+  if (seguro) {
+    // solo se reordena y se comprime sin cuantizar: la geometría queda exactamente igual
+    pasos.push(fn.reorder({ encoder: mo.MeshoptEncoder, target: 'size' }));
+    await doc.transform(...pasos);
+    doc.createExtension(ext.EXTMeshoptCompression).setRequired(true).setEncoderOptions({ method: ext.EXTMeshoptCompression.EncoderMethod.FILTER });
+  } else {
+    pasos.push(fn.meshopt({ encoder: mo.MeshoptEncoder, level: 'high' }));
+    await doc.transform(...pasos);
+  }
   return Buffer.from(await io.writeBinary(doc));
+}
+
+/** Caja que ocupa el modelo (para comprobar que la compresión no lo deformó). */
+async function cajaDe(glb) {
+  const { io, fn } = await cargarHerramientasGlb();
+  const doc = await io.readBinary(new Uint8Array(glb));
+  const raiz = doc.getRoot();
+  const b = fn.getBounds(raiz.getDefaultScene() || raiz.listScenes()[0]);
+  return { min: b.min, max: b.max, esqueletos: raiz.listSkins().length > 0 };
+}
+const parecidas = (a, b) => {
+  const diag = Math.hypot(...a.max.map((v, i) => v - a.min[i])) || 1;
+  const tol = diag * 0.01;
+  return [...a.min, ...a.max].every((v, i) => Math.abs(v - [...b.min, ...b.max][i]) <= tol);
+};
+
+/** Comprime y VERIFICA que la forma del modelo no cambió. Si cambió, reintenta en modo seguro; si aún así falla, deja el original. */
+async function comprimirVerificado(glb, ligero) {
+  const original = await cajaDe(glb);
+  const intentos = original.esqueletos ? [true] : [false, true];   // con esqueleto se va directo al modo seguro
+  for (const seguro of intentos) {
+    const buf = await comprimir(glb, ligero, seguro);
+    if (parecidas(original, await cajaDe(buf))) return { buf, seguro, aviso: '' };
+  }
+  return { buf: glb, seguro: true, aviso: 'la compresión deformaba el modelo; se dejó SIN comprimir' };
 }
 
 // ───────────────────────── 5. miniaturas ─────────────────────────
@@ -280,7 +316,7 @@ async function main() {
 
   const catalogo = await leerJSON(ARCHIVO_CATALOGO, { version: 1, modelos: [] });
   const previos = new Map(catalogo.modelos.map((m) => [m.id, m]));
-  const meta = await leerJSON(ARCHIVO_META, { _ayuda: 'Datos que curas tú. nivel: primaria / secundaria. dimension: vida | fisica-quimica | tierra-universo. orden: número menor sale primero.' });
+  const meta = await leerJSON(ARCHIVO_META, { _ayuda: 'Datos que curas tú. dimension: vida | fisica-quimica | tierra-universo. orden: número menor sale primero. Opcionales: titulo y descripcion (para distinguir dos modelos que se llaman igual). nivel se guarda pero hoy la app no lo muestra.' });
   const archivos = (await readdir(ENTRADA)).filter((f) => f.toLowerCase().endsWith('.html')).sort();
   if (!archivos.length) { console.log('No hay archivos .html en la carpeta de entrada.'); return; }
 
@@ -323,8 +359,11 @@ async function main() {
     let pesos = { original: it.v.glb.length, normal: 0, ligero: 0 };
 
     if (parche.ok) {
-      const normal = await comprimir(it.v.glb, false);
-      const ligero = await comprimir(it.v.glb, true);
+      const rn = await comprimirVerificado(it.v.glb, false);
+      const rl = await comprimirVerificado(it.v.glb, true);
+      const normal = rn.buf, ligero = rl.buf;
+      for (const r of [rn, rl]) if (r.aviso) avisos.push(`! ${id}: ${r.aviso}`);
+      if (rn.seguro) avisos.push(`i ${id}: tiene esqueleto (huesos); se comprimió sin tocar la forma, por eso pesa un poco más`);
       const hashCodigo = sha(parche.app).slice(0, 10);
       await writeFile(join(VISORES, `${hashCodigo}.js`), parche.app);
       await writeFile(join(carpeta, 'index.html'), armarHtml(it.html, it.v, hashCodigo));
@@ -344,7 +383,8 @@ async function main() {
 
     nuevos.push({
       id,
-      titulo: it.v.cfg.titulo || id,
+      titulo: m.titulo || it.v.cfg.titulo || id,
+      descripcion: m.descripcion || '',
       subtitulo: it.v.cfg.subtitulo || '',
       curso: m.curso || 'ciencias',
       nivel: m.nivel || ['primaria', 'secundaria'],

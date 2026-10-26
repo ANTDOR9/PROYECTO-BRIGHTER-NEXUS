@@ -1,6 +1,6 @@
 // Biblioteca 3D: catálogo con miniaturas, visor a pantalla completa y créditos.
 //
-//  • Catálogo ......... #/modulo/biblioteca3d        (este módulo: tarjetas filtrables por dimensión y nivel)
+//  • Catálogo ......... #/modulo/biblioteca3d        (este módulo: tarjetas con foto, filtro por tema y buscador)
 //  • Visor ............ #/biblioteca3d/ver/:id       (el visor propio de cada modelo, en un marco a pantalla completa)
 //  • Créditos ......... #/biblioteca3d/creditos      (autor, licencia y cambios de cada modelo)
 //
@@ -23,10 +23,9 @@ const DIMENSION = {
   vida: { nombre: 'Ciencias de la vida', color: 'var(--lima)', icono: '🧬' },
   'fisica-quimica': { nombre: 'Física y química', color: 'var(--naranja)', icono: '⚗️' },
   'tierra-universo': { nombre: 'Tierra y universo', color: 'var(--violeta)', icono: '🌍' },
-  matematica: { nombre: 'Matemática (geometría)', color: 'var(--cian)', icono: '📐' },
+  matematica: { nombre: 'Matemática', color: 'var(--cian)', icono: '📐' },
   'sin-clasificar': { nombre: 'Sin clasificar', color: 'var(--suave)', icono: '🧊' }
 };
-const NIVEL = { primaria: 'Primaria', secundaria: 'Secundaria' };
 // Modelos armados en código que se esconden cuando ya existe uno real equivalente
 const REEMPLAZADO_POR = { corazon: 'corazon-humano' };
 
@@ -44,7 +43,7 @@ export async function cargarCatalogo() {
   const items = reales.map(m => ({
     id: m.id, tipo: 'html', titulo: m.titulo, dimension: DIMENSION[m.dimension] ? m.dimension : 'sin-clasificar',
     nivel: [].concat(m.nivel || []),
-    descripcion: m.partes && m.partes.length ? `${m.partes.length} partes para explorar` : `${m.paginasInfo || 0} páginas de información`,
+    descripcion: m.descripcion || (m.partes && m.partes.length ? `${m.partes.length} partes para explorar` : `${m.paginasInfo || 0} páginas de información`),
     miniatura: m.archivos && m.archivos.miniatura ? `contenido/modelos3d/${m.archivos.miniatura}` : null,
     licencia: m.licencia, credito: m.credito, partes: m.partes || []
   }));
@@ -52,6 +51,10 @@ export async function cargarCatalogo() {
     id: m.id, tipo: 'codigo', titulo: m.nombre, dimension: m.dimension || 'matematica', nivel: [m.nivel],
     descripcion: m.descripcion, miniatura: null, licencia: null, credito: null, partes: []
   }));
+  // Dos modelos con el mismo nombre (de autores distintos) se distinguen por el autor
+  const repetidos = new Map();
+  items.forEach(m => repetidos.set(m.titulo, (repetidos.get(m.titulo) || 0) + 1));
+  items.forEach(m => { if (repetidos.get(m.titulo) > 1 && m.credito && m.credito.autor) m.descripcion += ` · de ${m.credito.autor}`; });
   cache = { items, modo };
   return cache;
 }
@@ -61,7 +64,7 @@ const calidad = () => { try { return localStorage.getItem(CLAVE_CALIDAD) || 'aut
 const guardarCalidad = v => { try { localStorage.setItem(CLAVE_CALIDAD, v); } catch (e) { /* se queda en automática */ } };
 
 // Los filtros se recuerdan al volver del visor
-const filtros = { dimension: 'todas', nivel: 'todos', texto: '' };
+const filtros = { dimension: 'todas', texto: '' };
 
 // ───────────── catálogo ─────────────
 
@@ -72,16 +75,14 @@ function insigniaLicencia(m, modo) {
   return '';
 }
 
-function tarjetaModelo(m, modo) {
+function tarjetaModelo(m) {
   const d = DIMENSION[m.dimension] || DIMENSION['sin-clasificar'];
   const foto = m.miniatura
     ? `<img src="${esc(m.miniatura)}" alt="" loading="lazy" decoding="async">`
     : `<span class="mc-icono" aria-hidden="true">${d.icono}</span>`;
-  const niveles = m.nivel.map(n => `<em class="insignia nivel">${esc(NIVEL[n] || n)}</em>`).join('');
   return `<a class="modelo-card" href="#/biblioteca3d/ver/${encodeURIComponent(m.id)}" style="--c:${d.color}">
     <div class="mc-foto">${foto}</div>
-    <div class="mc-cuerpo"><b>${esc(m.titulo)}</b><span>${esc(m.descripcion)}</span>
-    <div class="mc-etiquetas"><em class="mc-dim">${esc(d.nombre)}</em>${niveles}${insigniaLicencia(m, modo)}</div></div></a>`;
+    <div class="mc-cuerpo"><b>${esc(m.titulo)}</b><span>${esc(m.descripcion)}</span></div></a>`;
 }
 
 export default {
@@ -104,20 +105,21 @@ export default {
       raiz.innerHTML = `
         <div class="bib-filtros">
           <div class="chips" data-g="dimension" role="group" aria-label="Tema"></div>
-          <div class="chips" data-g="nivel" role="group" aria-label="Nivel"></div>
           <input class="bib-buscar" type="search" placeholder="🔍  Buscar modelo…" aria-label="Buscar modelo" autocomplete="off">
         </div>
         <div class="rejilla bib-rejilla"></div>
         <p class="bib-vacio" hidden>No hay modelos con esos filtros.</p>
         <div class="bib-pie">
-          <div class="chips" data-g="calidad" role="group" aria-label="Calidad de los modelos"></div>
-          <span class="bib-ayuda">Calidad: «Ligera» abre más rápido en equipos modestos.</span>
+          <details class="bib-ajustes">
+            <summary>Ajustes de rendimiento</summary>
+            <p class="bib-ayuda">Si los modelos tardan en abrir, elige «Ligera».</p>
+            <div class="chips" data-g="calidad" role="group" aria-label="Calidad de los modelos"></div>
+          </details>
           <a class="bib-creditos" href="#/biblioteca3d/creditos">Créditos y licencias</a>
         </div>`;
       const g = nombre => raiz.querySelector(`[data-g="${nombre}"]`);
       const opciones = {
-        dimension: [['todas', 'Todos los temas'], ...dims.map(d => [d, (DIMENSION[d] || DIMENSION['sin-clasificar']).nombre])],
-        nivel: [['todos', 'Todos los niveles'], ['primaria', 'Primaria'], ['secundaria', 'Secundaria']],
+        dimension: [['todas', 'Todos'], ...dims.map(d => [d, (DIMENSION[d] || DIMENSION['sin-clasificar']).nombre])],
         calidad: [['auto', 'Automática'], ['alta', 'Alta'], ['ligera', 'Ligera']]
       };
       const buscar = raiz.querySelector('.bib-buscar');
@@ -141,9 +143,8 @@ export default {
         const t = filtros.texto.trim().toLowerCase();
         const lista = items.filter(m =>
           (filtros.dimension === 'todas' || m.dimension === filtros.dimension) &&
-          (filtros.nivel === 'todos' || m.nivel.includes(filtros.nivel)) &&
           (!t || (m.titulo + ' ' + m.partes.join(' ')).toLowerCase().includes(t)));
-        raiz.querySelector('.bib-rejilla').innerHTML = lista.map(m => tarjetaModelo(m, modo)).join('');
+        raiz.querySelector('.bib-rejilla').innerHTML = lista.map(tarjetaModelo).join('');
         raiz.querySelector('.bib-vacio').hidden = lista.length > 0;
       }
       buscar.addEventListener('input', () => { filtros.texto = buscar.value; pintarRejilla(); });

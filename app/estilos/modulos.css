@@ -207,3 +207,8 @@ body.en-visor3d main { max-width: none; padding: 0; }
 .credito p { margin: 4px 0; font-size: 16px; color: var(--suave); }
 .credito b, .credito a { color: var(--texto); }
 .credito-atrib { font-size: 13px !important; }
+
+.bib-ajustes { color: var(--suave); font-size: 15px; font-weight: 700; }
+.bib-ajustes summary { cursor: pointer; min-height: 44px; display: inline-flex; align-items: center; }
+.bib-ajustes .chips { margin-top: 6px; }
+.bib-ajustes .bib-ayuda { margin: 4px 0 0; }

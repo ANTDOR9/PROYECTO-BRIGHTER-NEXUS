@@ -205,18 +205,19 @@ comprobar(imgOk === conMini, `biblioteca: ${imgOk} de ${conMini} miniaturas carg
 const sinMini = await page.locator('.mc-foto .mc-icono').count();
 comprobar(sinMini === nTarjetas - conMini, `biblioteca: ${sinMini} tarjetas sin foto muestran un ícono de respaldo`);
 // filtros y búsqueda
-await page.click('.chip:text-is("Matemática (geometría)")');
+await page.click('.chip:text-is("Matemática")');
 comprobar((await page.locator('.modelo-card').count()) === 1, 'biblioteca: filtrar por Matemática deja solo el cubo');
-await page.click('.chip:text-is("Todos los temas")');
+await page.click('.chip:text-is("Todos")');
 await page.fill('.bib-buscar', 'golgi');
 const conGolgi = await page.locator('.modelo-card').count();
 comprobar(conGolgi >= 1 && conGolgi < nTarjetas, `biblioteca: buscar "golgi" encuentra ${conGolgi} modelo(s) por el nombre de sus partes`);
 await page.fill('.bib-buscar', 'zzzz');
 comprobar(await page.isVisible('.bib-vacio'), 'biblioteca: sin resultados muestra un aviso');
 await page.fill('.bib-buscar', '');
-// los modelos de uso no comercial se ven marcados mientras se desarrolla
-const noAptos = reales.filter(m => m.licencia.estado === 'excluir').length;
-comprobar((await page.locator('.insignia.alerta').count()) === noAptos, `biblioteca: ${noAptos} modelo(s) de uso no comercial llevan el aviso "No apto licitación"`);
+// el catálogo es limpio: sin etiquetas de nivel ni avisos de licencia que confundan a quien enseña
+comprobar((await page.locator('.insignia').count()) === 0, 'biblioteca: las tarjetas no llevan etiquetas de nivel ni de licencia');
+comprobar((await page.locator('.chip:text-is("Primaria"), .chip:text-is("Secundaria")').count()) === 0, 'biblioteca: no hay botones de Primaria/Secundaria');
+comprobar(!(await page.locator('.bib-ajustes').evaluate(d => d.open)), 'biblioteca: los ajustes de rendimiento están recogidos por defecto');
 
 // ---------- integridad de los archivos de cada modelo ----------
 for (const m of reales) {
@@ -274,6 +275,8 @@ comprobar(nCred === reales.length + 1, `créditos: aparece cada modelo (${reales
 const textoCred = await page.textContent('.creditos-lista');
 comprobar(reales.every(m => textoCred.includes(m.credito.autor)), 'créditos: se nombra al autor de cada modelo');
 comprobar(reales.every(m => textoCred.includes(m.licencia.texto.slice(0, 12))), 'créditos: se indica la licencia de cada modelo');
+const noAptos = reales.filter(m => m.licencia.estado === 'excluir').length;
+comprobar((await page.locator('.insignia.alerta').count()) === noAptos, `créditos: ${noAptos} modelo(s) de uso no comercial llevan el aviso "No apto licitación" (solo aquí)`);
 
 // ---------- modelos armados en código ----------
 await page.goto(BASE + '#/biblioteca3d/ver/sistema-solar');

@@ -149,7 +149,7 @@ La biblioteca tiene tres pantallas (rutas en `app.js`):
 
 | Pantalla | Ruta | Qué hace |
 | --- | --- | --- |
-| Catálogo | `#/modulo/biblioteca3d` | Tarjetas con miniatura, filtros por tema y nivel, buscador por nombre de modelo o de sus partes, selector de calidad |
+| Catálogo | `#/modulo/biblioteca3d` | Tarjetas limpias (foto, nombre y una línea), filtro por tema, buscador por nombre de modelo o de sus partes. La calidad se elige en «Ajustes de rendimiento» (recogido). Sin etiquetas de nivel ni de licencia: eso se ve solo en Créditos |
 | Visor | `#/biblioteca3d/ver/:id` | El visor del modelo a pantalla completa. Nexus solo agrega el botón «← Biblioteca» (arriba al centro, donde el visor no tiene nada) |
 | Créditos | `#/biblioteca3d/creditos` | Autor, licencia, fuente y cambios de cada modelo (obligatorio con CC BY) |
 
@@ -176,9 +176,13 @@ Para cada visor `.html`: saca el modelo y la configuración que traía incrustad
 | --- | --- | --- |
 | `ok` | CC0, CC BY | Entra a la licitación |
 | `revisar` | CC BY-SA, «Estándar», licencia desconocida | Entra al catálogo con aviso; hay que decidirlo a mano |
-| `excluir` | cualquier NC (no comercial) o ND (sin obras derivadas) | Lleva el aviso «No apto licitación»; `modelos:licitacion` lo saca de la app |
+| `excluir` | cualquier NC (no comercial) o ND (sin obras derivadas) | Lleva el aviso «No apto licitación» solo en la pantalla de Créditos y en el informe del comando; `modelos:licitacion` lo saca de la app |
+
+**Nivel (primaria/secundaria).** Se guarda en `metadatos.json` por si hace falta más adelante, pero la interfaz no lo muestra: la app es la misma para todos.
 
 **Calidad.** El visor elige solo: «ligera» si el equipo reporta 4 GB de memoria o menos, o 4 núcleos o menos. La persona puede forzar Alta o Ligera en el catálogo (se recuerda en el equipo). También se puede abrir un visor directo con `?calidad=ligera`.
+
+**Modelos con esqueleto.** Si un modelo trae huesos (como la célula animal de 3D_UTPL), comprimirle la geometría lo deshace. El proceso lo detecta, lo comprime sin tocar la forma y lo avisa. Además, tras comprimir cada modelo compara su tamaño con el original; si cambió, reintenta en modo seguro y, si aún falla, lo deja sin comprimir.
 
 **Si un lote nuevo trae otro formato.** El proceso espera visores con `window.__CFG__` y `window.__GLB__`. Si el código del visor es distinto, lo copia sin optimizar y lo avisa; si ni siquiera tiene esa estructura, lo omite y lo dice. En ese caso hay que ajustar `herramientas/modelos.js`.
 

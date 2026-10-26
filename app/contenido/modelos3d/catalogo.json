@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generado": "2026-10-26T13:58:07.676Z",
+  "generado": "2026-10-26T14:36:36.177Z",
   "modo": "desarrollo",
   "modelos": [
     {
@@ -257,12 +257,12 @@
         "visor": "celula-animal-utpl/index.html",
         "glb": "celula-animal-utpl/modelo.glb",
         "glbLigero": "celula-animal-utpl/modelo-ligero.glb",
-        "miniatura": null
+        "miniatura": "celula-animal-utpl/miniatura.webp"
       },
       "pesoBytes": {
         "original": 7245932,
-        "normal": 1337292,
-        "ligero": 1020608
+        "normal": 1698356,
+        "ligero": 1588056
       },
       "optimizado": true,
       "fuenteSha": "a37d5220c36c1cd4a78d39828bf20e88c1b08897e8a61a49b4ca703df1124edc",
