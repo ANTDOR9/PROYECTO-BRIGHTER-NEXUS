@@ -1,5 +1,6 @@
-// Intro que se ve al abrir la app. Hoy es un ESPACIO RESERVADO: un marco 16:9 con el logo animado.
-// Cuando exista la intro real, se cambia app/contenido/intro.json (tipo 'video' o 'imagen') y no hay que tocar código.
+// Intro que se ve al abrir la app. Mientras intro.json diga tipo 'reservado', la entrada es la pantalla de carga del
+// logo (menu/cargando.js: ver pantallas-menu.js). Cuando exista la intro real, se cambia app/contenido/intro.json
+// (tipo 'video' o 'imagen') y no hay que tocar código: entonces se usa esta pantalla.
 import { logoSVG } from './logo.js';
 import { aplicarEscena } from './fondo.js';
 import { ir } from './enrutador.js';
@@ -9,13 +10,13 @@ const CLAVE_VISTA = 'nexus.introVista';
 export function introYaVista() {
   try { return sessionStorage.getItem(CLAVE_VISTA) === '1'; } catch (e) { return false; }
 }
-function marcarVista() {
+export function marcarVista() {
   try { sessionStorage.setItem(CLAVE_VISTA, '1'); } catch (e) { /* sin almacenamiento: se verá otra vez */ }
 }
 
 const POR_DEFECTO = { tipo: 'reservado', archivo: null, duracionSegundos: 6, saltable: true, silenciado: true, titulo: 'Brighter Nexus', subtitulo: '' };
 
-async function leerConfig() {
+export async function leerConfig() {
   try {
     const r = await fetch('contenido/intro.json');
     if (r.ok) return { ...POR_DEFECTO, ...(await r.json()) };

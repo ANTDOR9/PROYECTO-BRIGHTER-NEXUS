@@ -1,5 +1,6 @@
 // Prueba de extremo a extremo del prototipo en un navegador real (Chromium).
-// Recorre: intro, las 3 actividades con el motor de puntaje, la pizarra (ratón y dos dedos) y el visor 3D.
+// Recorre: carga y menú (con sus 4 secciones), las 3 actividades con el motor de puntaje, el quiz de ciencias
+// (con su juego), la pizarra (ratón y dos dedos), la biblioteca 3D y sus visores.
 //
 // Uso:  npm i -D playwright && npx playwright install chromium     (una sola vez)
 //       npm run servir          (en otra terminal)
@@ -32,25 +33,67 @@ page.on('pageerror', e => errores.push('pageerror: ' + e.message));
 page.on('response', r => { if (r.status() >= 400) errores.push(`HTTP ${r.status()}: ${r.url()}`); });
 page.on('console', m => { if (m.type() === 'error') errores.push('console: ' + m.text()); });
 
-// ---------- intro ----------
+const hash = () => page.evaluate(() => location.hash);
+const estilosNexusActivos = () => page.evaluate(() => [...document.querySelectorAll('link[data-nexus]')].every(l => l.media === 'all'));
+const estilosNexusApagados = () => page.evaluate(() => [...document.querySelectorAll('link[data-nexus]')].every(l => l.media === 'not all'));
+
+// ---------- carga ----------
 await page.goto(BASE);
-await page.waitForSelector('.intro');
-comprobar(page.url().endsWith('#/intro'), 'al abrir la app se va a #/intro');
-comprobar((await page.textContent('.intro-reserva')).includes('Espacio reservado'), 'la intro muestra el espacio reservado');
-comprobar(!(await page.isVisible('.barra-superior')), 'la barra superior está oculta durante la intro');
-await page.screenshot({ path: SALIDA + '/01-intro.png' });
-await page.click('.intro');
-await page.waitForSelector('text=¿Qué hacemos hoy?');
-comprobar(page.url().endsWith('#/'), 'tocar la intro lleva al inicio');
-comprobar(await page.isVisible('.barra-superior'), 'la barra superior vuelve después de la intro');
+await page.waitForSelector('.anillo');
+comprobar((await hash()) === '#/intro', 'al abrir la app se va a #/intro (pantalla de carga)');
+comprobar(!(await page.isVisible('.barra-superior')), 'carga: la barra superior de Nexus está oculta');
+comprobar(await estilosNexusApagados(), 'carga: los estilos de Nexus se apagan mientras se ve la pantalla propia');
+await page.screenshot({ path: SALIDA + '/01-carga.png' });
+
+// ---------- menú ----------
+await page.waitForSelector('.op', { timeout: 12000 });
+comprobar((await hash()) === '#/', 'la carga pasa sola al menú');
+await page.waitForFunction(() => document.body.classList.contains('fotos-listas'), null, { timeout: 8000 });
+comprobar((await page.locator('.op').count()) === 4 && (await page.locator('a.centro').count()) === 1, 'menú: 4 botones principales y el logo al centro');
+comprobar(!(await page.isVisible('.barra-superior')) && await estilosNexusApagados(), 'menú: es una pantalla propia (sin la barra ni los estilos de Nexus)');
+await page.waitForTimeout(1500);
+await page.screenshot({ path: SALIDA + '/02-menu.png' });
 await page.reload();
-await page.waitForSelector('text=¿Qué hacemos hoy?');
-comprobar(!page.url().includes('intro'), 'la intro no se repite en la misma sesión');
-await page.screenshot({ path: SALIDA + '/02-inicio.png' });
+await page.waitForSelector('.op');
+comprobar(!(await hash()).includes('intro'), 'la carga no se repite en la misma sesión');
+
+// cada botón abre su sección con las tarjetas que salen del registro
+const SECCIONES = { aprender: ['Matemática', 'Lenguaje', 'Ciencias'], explorar: ['Biblioteca 3D', 'Mediateca'], jugar: ['Quiz', 'Juegos'], pizarra: ['Nueva clase', 'Continuar clase'] };
+for (const [id, nombres] of Object.entries(SECCIONES)) {
+  await page.waitForFunction(() => document.body.classList.contains('fotos-listas') && !document.body.classList.contains('zoom'));
+  await page.click(`.op[data-seccion="${id}"]`);
+  await page.waitForSelector(`#sec-${id}.activa .tarjeta`, { state: 'visible', timeout: 6000 });
+  await page.waitForTimeout(900);
+  const vistos = await page.$$eval(`#sec-${id} .tarjeta`, n => n.map(x => x.dataset.nombre));
+  comprobar(JSON.stringify(vistos) === JSON.stringify(nombres), `menú · ${id}: tarjetas ${vistos.join(', ')}`);
+  comprobar((await hash()) === `#/seccion/${id}`, `menú · ${id}: la dirección es #/seccion/${id}`);
+  if (id === 'aprender') await page.screenshot({ path: SALIDA + '/02b-menu-aprender.png' });
+  await page.click('#btnInicio');
+  await page.waitForFunction(() => !document.querySelector('.seccion.activa'));
+  comprobar((await hash()) === '#/', `menú · ${id}: "Inicio" vuelve al círculo`);
+}
+
+// de una sesión se vuelve a la sección donde estaba, ya abierta (también con "atrás" del navegador)
+await page.waitForFunction(() => document.body.classList.contains('fotos-listas'));
+await page.click('.op[data-seccion="aprender"]');
+await page.waitForSelector('#sec-aprender.activa .tarjeta', { state: 'visible' });
+await page.waitForTimeout(900);
+await page.click('#sec-aprender .tarjeta[data-nombre="Matemática"]');
+await page.waitForSelector('text=Tablas de multiplicar');
+comprobar((await hash()) === '#/sesion/matematica' && await page.isVisible('.barra-superior') && await estilosNexusActivos(), 'sesión: vuelven la barra y los estilos de Nexus');
+await page.screenshot({ path: SALIDA + '/02c-sesion.png' });
+await page.goBack();
+await page.waitForSelector('#sec-aprender.activa .tarjeta', { state: 'visible', timeout: 6000 });
+comprobar((await hash()) === '#/seccion/aprender' && await page.evaluate(() => document.body.classList.contains('zoom')), 'atrás del navegador vuelve a Aprender, ya abierto');
+comprobar(await estilosNexusApagados(), 'menú: al volver se apagan otra vez los estilos de Nexus');
+await page.goto(BASE + '#/sesion/matematica');
+await page.click('a:text("← Aprender")');
+await page.waitForSelector('#sec-aprender.activa .tarjeta', { state: 'visible', timeout: 6000 });
+comprobar((await hash()) === '#/seccion/aprender', 'sesión: "← Aprender" vuelve a la sección Aprender');
 
 // ---------- matemática: completar ----------
-await page.click('a.tarjeta:has(b:text-is("Matemática"))');
-await page.click('a.tarjeta:has(b:text-is("Multiplicación"))');
+await page.goto(BASE + '#/sesion/matematica');
+await page.click('a.tarjeta:has(b:text-is("Tablas de multiplicar"))');
 const mat = leer('matematica/multiplicacion-completar.json');
 for (let i = 0; i < mat.ejercicios.length; i++) {
   const ej = mat.ejercicios[i];
@@ -125,7 +168,7 @@ comprobar(/15 de 15/.test(res), `ciencias: 15 de 15 estrellas → "${res.trim()}
 // ---------- el progreso quedó guardado por juego ----------
 const guardado = await page.evaluate(() => JSON.parse(localStorage.getItem('brighterNexus.v1')));
 const juegos = Object.keys(guardado.alumnos[0].juegos).sort();
-comprobar(JSON.stringify(juegos) === JSON.stringify(['ciencias/vida', 'lenguaje/cuento', 'matematica/multiplicacion']), 'el progreso se guarda por juego: ' + juegos.join(', '));
+comprobar(JSON.stringify(juegos) === JSON.stringify(['ciencias/vida', 'lenguaje/cuento', 'matematica/tablas']), 'el progreso se guarda por juego: ' + juegos.join(', '));
 comprobar(!!guardado.alumnos[0].medallas.primera && !!guardado.alumnos[0].medallas.ronda_perfecta, 'se ganaron las medallas "primera" y "ronda_perfecta"');
 
 // ---------- pizarra ----------
@@ -187,6 +230,107 @@ n = await page.evaluate(() => JSON.parse(localStorage.getItem('brighterNexus.piz
 comprobar(n === 0, 'pizarra: segundo toque borra todo');
 const [descarga] = await Promise.all([page.waitForEvent('download'), page.click('.herr:has(small:text-is("Guardar imagen"))')]);
 comprobar(/^pizarra-\d{4}-\d{2}-\d{2}-\d{4}\.png$/.test(descarga.suggestedFilename()), 'pizarra: guardar imagen descarga ' + descarga.suggestedFilename());
+
+// ---------- pizarra: "Nueva clase" (la clase en curso solo se borra si la persona lo confirma) ----------
+await page.goto(BASE + '#/modulo/pizarra');
+await page.waitForSelector('.lienzo canvas'); await page.waitForTimeout(300);
+await page.click('.herr:has(small:text-is("Lápiz"))');
+const caja2 = await page.locator('.lienzo canvas').boundingBox();
+await page.mouse.move(caja2.x + 300, caja2.y + 200); await page.mouse.down(); await page.mouse.move(caja2.x + 500, caja2.y + 260, { steps: 6 }); await page.mouse.up();
+await page.waitForTimeout(200);
+const trazosGuardados = () => page.evaluate(() => { try { return JSON.parse(localStorage.getItem('brighterNexus.pizarra.v1')).trazos.length; } catch (e) { return 0; } });
+comprobar((await trazosGuardados()) === 1, 'pizarra: hay una clase guardada con 1 trazo');
+await page.goto(BASE + '#/pizarra/nueva');
+await page.waitForSelector('[role="alertdialog"]');
+comprobar(await page.isVisible('text=¿Empezar una clase nueva?'), 'pizarra · nueva clase: con una clase guardada, pregunta antes de borrarla');
+await page.click('button:text-is("Continuar la guardada")');
+await page.waitForSelector('.lienzo canvas');
+comprobar((await hash()) === '#/modulo/pizarra' && (await trazosGuardados()) === 1, 'pizarra · nueva clase: "Continuar la guardada" conserva el trazo');
+await page.goto(BASE + '#/pizarra/nueva');
+await page.waitForSelector('[role="alertdialog"]');
+await page.click('button:text-is("Empezar nueva")');
+await page.waitForSelector('.lienzo canvas');
+comprobar((await trazosGuardados()) === 0, 'pizarra · nueva clase: "Empezar nueva" deja la pizarra en blanco');
+await page.goto(BASE + '#/pizarra/nueva');
+await page.waitForSelector('.lienzo canvas');
+comprobar((await hash()) === '#/modulo/pizarra', 'pizarra · nueva clase: sin clase guardada abre la pizarra directo');
+
+// ---------- quiz de ciencias ----------
+const { default: seresVivos } = await import('../app/quiz/temas/ciencias/seres-vivos.js');
+const perfilDelQuiz = () => page.evaluate(() => { const d = JSON.parse(localStorage.getItem('brighterNexus.v1')); return d.alumnos[0].juegos['ciencias/quiz-seres-vivos'] || null; });
+// se llega desde Jugar → Quiz
+await page.goto(BASE + '#/seccion/jugar');
+await page.waitForSelector('#sec-jugar.activa .tarjeta', { state: 'visible' });
+await page.waitForTimeout(900);
+comprobar((await page.locator('#sec-jugar .tarjeta[data-nombre="Juegos"] .etiqueta').textContent()) === 'Pronto', 'jugar: "Juegos" está marcado como Pronto');
+await page.click('#sec-jugar .tarjeta[data-nombre="Quiz"]');
+await page.waitForSelector('.panel', { timeout: 20000 });
+await page.waitForFunction(() => location.hash === '#/quiz/conejo?tema=seres-vivos', null, { timeout: 30000 });
+comprobar(true, 'quiz: Jugar → Quiz abre #/quiz/conejo?tema=seres-vivos (juego y tema recordados)');
+comprobar(!(await page.isVisible('.barra-superior')) && await estilosNexusApagados(), 'quiz: es una pantalla propia (sin la barra ni los estilos de Nexus)');
+await page.waitForFunction(() => document.querySelector('.juego-area canvas') && document.querySelector('.juego-aviso').hidden, null, { timeout: 30000 });
+comprobar(true, 'quiz: el juego del conejo se monta de fondo (three.js local)');
+await page.screenshot({ path: SALIDA + '/12-quiz-conejo.png' });
+// cambiar de juego o de tema no recarga la pantalla
+await page.evaluate(() => { document.querySelector('.panel').dataset.mismo = '1'; });
+await page.click('.opc.power');
+await page.waitForFunction(() => location.hash === '#/quiz/ninguno?tema=seres-vivos');
+comprobar(await page.evaluate(() => document.body.classList.contains('sin-juego') && document.querySelector('.panel').dataset.mismo === '1'), 'quiz: apagar el juego cambia la dirección sin recargar la pantalla');
+await page.waitForSelector('.chispa-btn');
+await page.screenshot({ path: SALIDA + '/13-quiz-sin-juego.png' });
+// partida completa sin errores = 3 estrellas
+await page.click('.chispa-btn');
+for (let i = 0; i < seresVivos.preguntas.length; i++) {
+  await page.waitForSelector('.opcion');
+  const enunciado = (await page.textContent('.pregunta')).trim();
+  const p = seresVivos.preguntas.find(x => x.pregunta === enunciado);
+  await page.click(`.opcion:has(.texto:text-is("${p.opciones[p.correcta]}"))`);
+  await page.waitForSelector('.respuesta.ok');
+  if (i === 0) comprobar(await page.isVisible('.respuesta.ok strong'), 'quiz: al acertar se explica por qué');
+  await page.click('.sig .chispa-btn:not([disabled])');
+}
+await page.waitForSelector('.estrellas .gana');
+const estrellasQuiz = await page.locator('.estrellas .gana').count();
+comprobar(estrellasQuiz === 3, `quiz: diez aciertos dan 3 estrellas (${estrellasQuiz})`);
+await page.screenshot({ path: SALIDA + '/14-quiz-resultado.png' });
+const pq = await perfilDelQuiz();
+comprobar(!!pq && pq.estrellas === 3 && pq.rondas === 1 && pq.contadores.ejercicios === 1 && pq.mejor > 0, 'quiz: la partida suma al perfil del alumno (ciencias/quiz-seres-vivos)');
+// un error baja una vida y se queda en el resumen de repaso
+await page.click('button:text-is("Jugar otra vez"), .chispa-btn:has-text("Jugar otra vez")');
+await page.waitForSelector('.opcion');
+{
+  const enunciado = (await page.textContent('.pregunta')).trim();
+  const p = seresVivos.preguntas.find(x => x.pregunta === enunciado);
+  const mala = p.opciones.find((_, i) => i !== p.correcta);
+  await page.click(`.opcion:has(.texto:text-is("${mala}"))`);
+  await page.waitForSelector('.respuesta.mal');
+  const vidas = (await page.textContent('.num-vidas')).trim();
+  comprobar(vidas === '2', `quiz: un error cuesta una vida (quedan ${vidas})`);
+}
+// salir en plena partida: pregunta; "Seguir jugando" se queda; "Salir" vuelve al menú
+await page.click('#btnInicio');
+await page.waitForSelector('dialog[open]');
+comprobar(await page.isVisible('text=¿Salir de la partida?'), 'quiz: salir en plena partida pide confirmación');
+await page.click('dialog[open] button:text-is("Seguir jugando")');
+await page.waitForFunction(() => !document.querySelector('dialog[open]'));
+await page.waitForFunction(() => location.hash === '#/quiz/ninguno?tema=seres-vivos', null, { timeout: 3000 }).catch(() => {});
+comprobar((await hash()) === '#/quiz/ninguno?tema=seres-vivos' && (await page.locator('.panel').count()) === 1, `quiz: "Seguir jugando" se queda en la partida y la dirección se corrige (${await hash()})`);
+await page.click('#btnInicio');
+await page.waitForSelector('dialog[open]');
+await page.click('dialog[open] button:text-is("Salir")');
+await page.waitForSelector('.op');
+comprobar((await hash()) === '#/' && (await page.locator('.panel, dialog').count()) === 0 && !(await page.evaluate(() => document.body.classList.contains('sin-juego'))), 'quiz: "Salir" vuelve al menú y deja todo limpio');
+comprobar((await page.locator('.consejero .ave').count()) === 0, 'quiz: el consejero del quiz se retira al salir');
+// también está dentro de la sesión de Ciencias, con los estilos de Nexus
+await page.goto(BASE + '#/sesion/ciencias');
+await page.waitForSelector('a.tarjeta:has(b:text-is("Quiz de ciencias"))');
+comprobar(await estilosNexusActivos() && await page.isVisible('.barra-superior'), 'ciencias: la sesión vuelve a verse con los estilos de Nexus');
+await page.click('a.tarjeta:has(b:text-is("Quiz de ciencias"))');
+await page.waitForSelector('.panel', { timeout: 20000 });
+comprobar((await hash()).startsWith('#/quiz'), 'ciencias: la tarjeta "Quiz de ciencias" abre el quiz');
+await page.click('#btnInicio');                 // sin partida en curso: sale sin preguntar
+await page.waitForSelector('.op');
+comprobar((await hash()) === '#/', 'quiz: sin partida en curso, "Inicio" sale directo');
 
 // ---------- biblioteca 3D: catálogo ----------
 await page.goto(BASE + '#/modulo/biblioteca3d');
@@ -296,6 +440,66 @@ await page.waitForSelector('.modelo-card');
 comprobar(true, 'biblioteca: un modelo que no existe devuelve al catálogo');
 await page.goto(BASE + '#/');
 await page.waitForTimeout(300);
+
+// ---- Divisiones (juego de nasa-cell dentro de un marco, con su estética) ----
+await page.goto(BASE + '#/sesion/matematica');
+await page.waitForTimeout(400);
+comprobar(await page.locator('a[href="#/juego/matematica/divisiones"]').count() > 0, 'divisiones: aparece en la sesión de Matemática');
+await page.goto(BASE + '#/juego/matematica/divisiones');
+await page.waitForSelector('iframe.marco-juego');
+const marcoDiv = page.frame({ url: /divisiones\/juego\/index\.html/ });
+await marcoDiv.waitForSelector('#nombre', { timeout: 15000 });
+comprobar(true, 'divisiones: el juego abre dentro del marco');
+comprobar(await page.evaluate(() => getComputedStyle(document.querySelector('.barra-superior')).display) === 'none', 'divisiones: la barra de Nexus se oculta');
+await marcoDiv.fill('#nombre', 'Ana');
+await marcoDiv.click('text=Empezar');
+await marcoDiv.waitForSelector('text=Jugar sin reloj');
+comprobar(true, 'divisiones: crear alumno lleva a los niveles (Fácil, Medio, Difícil…)');
+comprobar((await marcoDiv.evaluate(() => getComputedStyle(document.body).fontFamily)).includes('Nunito'), 'divisiones: conserva su propia tipografía');
+await page.click('.visor3d-volver');
+await page.waitForTimeout(400);
+comprobar((await hash()) === '#/sesion/matematica', 'divisiones: "← Matemática" vuelve a la sesión');
+comprobar(await page.locator('iframe').count() === 0 && !(await page.evaluate(() => document.body.classList.contains('en-visor3d'))), 'divisiones: al salir, el marco se elimina y la barra vuelve');
+
+// ---- Multiplicación en columnas (plantilla "columnas") con el color propio del tema ----
+await page.goto(BASE + '#/sesion/matematica');
+await page.waitForSelector('.tarjeta');
+const colores = await page.$$eval('a.tarjeta', as => as.map(a => a.style.getPropertyValue('--c').trim().toUpperCase()));
+comprobar(new Set(colores.filter(c => c !== '#FF8A3D')).size === colores.filter(c => c !== '#FF8A3D').length && colores.length >= 6, 'matemática: cada tema (menos las dos de multiplicación) tiene un color distinto');
+await page.goto(BASE + '#/juego/matematica/multiplicacion');
+await page.waitForSelector('.col-rejilla');
+comprobar((await page.evaluate(() => getComputedStyle(document.querySelector('.pantalla')).getPropertyValue('--acento').trim().toUpperCase())) === '#FF8A3D', 'columnas: la pantalla usa el color naranja del tema');
+async function resolverColumnas() {
+  for (let i = 0; i < 30; i++) {
+    const q = await page.textContent('.col-pregunta');
+    const m = q.match(/^(\d+) × (\d+)(?: \+ (\d+))? .*= \?$/);
+    let r;
+    if (m) r = Number(m[1]) * Number(m[2]) + Number(m[3] || 0);
+    else {
+      const t = q.match(/Suma la columna: ([\d + ]+?)(?: \+ (\d+) \(lo que llevas\))? = \?/);
+      if (!t) break;
+      r = t[1].split('+').reduce((a, v) => a + Number(v), 0) + Number(t[2] || 0);
+    }
+    for (const c of String(r)) await page.keyboard.press(c);
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(60);
+  }
+}
+// un error primero: no avanza y no cuenta como acierto limpio
+await page.keyboard.press('9'); await page.keyboard.press('9'); await page.keyboard.press('9'); await page.keyboard.press('Enter');
+await page.waitForTimeout(900);
+comprobar((await page.textContent('.mensaje')).includes('Inténtalo'), 'columnas: una respuesta mala avisa y deja intentar otra vez');
+await resolverColumnas();
+comprobar((await page.textContent('.col-pregunta')).includes('14 × 3 = 42'), 'columnas: al resolver cada casilla aparece el resultado (14 × 3 = 42)');
+comprobar((await page.textContent('.ronda-pie .estrellas')).includes('★★'), 'columnas: con un error da estrellas (2)');
+await page.click('.ronda-pie .boton');
+for (let k = 0; k < 11; k++) { await resolverColumnas(); await page.click('.ronda-pie .boton'); await page.waitForTimeout(60); }
+await page.waitForSelector('.col-rejilla');
+await resolverColumnas();
+comprobar((await page.textContent('.ronda-cab span')).includes('13 de 13') && (await page.textContent('.col-pregunta')).includes('67 × 42 = 2814'), 'columnas: el último ejercicio, con multiplicador de dos cifras, suma bien las filas (67 × 42 = 2814)');
+await page.click('.ronda-pie .boton');
+await page.waitForSelector('.resumen-estrellas');
+comprobar(true, 'columnas: al terminar muestra el resultado de la ronda');
 
 await browser.close();
 console.log(`\n${ok} comprobaciones correctas, ${errores.length} problemas`);

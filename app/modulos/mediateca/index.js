@@ -3,6 +3,8 @@ export default {
   id: 'mediateca',
   nombre: 'Mediateca',
   escena: 'mediateca',
+  seccion: 'explorar',
+  seccionNombre: 'Explorar 3D',
   descripcion: 'Videos, imágenes y audios organizados por curso.',
   estado: 'pendiente',
   montar(zona) {

@@ -1,6 +1,6 @@
-// Pantallas comunes: inicio, sesión, juego y módulo.
+// Pantallas comunes: sesión, juego y módulo. (El inicio es el menú: nucleo/pantallas-menu.js)
 import { aplicarEscena } from './fondo.js';
-import { listaSesiones, listaModulos, buscarSesion, buscarModulo, buscarJuego } from './registro.js';
+import { buscarSesion, buscarModulo, buscarJuego } from './registro.js';
 import { contexto } from './contexto.js';
 import { guardar } from './almacen.js';
 import { montarRonda } from './ronda.js';
@@ -11,37 +11,26 @@ const ETIQUETA = { pendiente: 'Pendiente', 'por-migrar': 'Por migrar', prototipo
 
 const enlaceVolver = (destino, texto) => `<p class="migas"><a href="#${destino}">← ${esc(texto)}</a></p>`;
 
-function tarjeta(destino, { id, nombre, descripcion, estado }) {
+function tarjeta(destino, { id, nombre, descripcion, estado, color }) {
   const insignia = estado ? `<em class="insignia ${estado}">${ETIQUETA[estado] || esc(estado)}</em>` : '';
-  return `<a class="tarjeta" href="#${destino}" style="--c:${COLOR[id] || 'var(--acento)'};text-decoration:none">
+  return `<a class="tarjeta" href="#${destino}" style="--c:${color || COLOR[id] || 'var(--acento)'};text-decoration:none">
     <b>${esc(nombre)}</b><span>${esc(descripcion || '')}</span>${insignia}</a>`;
-}
-
-export function pantallaInicio(_p, cont) {
-  aplicarEscena('inicio');
-  cont.innerHTML = `
-    <h1>¿Qué hacemos hoy?</h1>
-    <p class="lead">Elige una sesión para trabajar con tus alumnos.</p>
-    <h2>Sesiones</h2>
-    <div class="rejilla">${listaSesiones().map(s => tarjeta(`/sesion/${s.id}`, s)).join('')}</div>
-    <h2>Herramientas</h2>
-    <div class="rejilla">${listaModulos().map(m => tarjeta(`/modulo/${m.id}`, m)).join('')}</div>
-    <p class="pie-inicio"><a href="#/intro">Ver la intro otra vez</a></p>`;
 }
 
 export function pantallaSesion({ id }, cont) {
   const s = buscarSesion(id);
   if (!s) { location.hash = '#/'; return; }
   aplicarEscena(s.escena);
-  cont.innerHTML = `${enlaceVolver('/', 'Inicio')}
+  cont.innerHTML = `${enlaceVolver('/seccion/aprender', 'Aprender')}
     <h1>${esc(s.nombre)}</h1><p class="lead">${esc(s.descripcion)}</p>
-    <div class="rejilla">${s.juegos.map(j => tarjeta(`/juego/${s.id}/${j.id}`, { id: s.id, nombre: j.nombre, descripcion: `Plantilla: ${j.plantilla}`, estado: j.estado })).join('')}</div>`;
+    <div class="rejilla">${s.juegos.map(j => tarjeta(j.ruta || `/juego/${s.id}/${j.id}`, { id: s.id, nombre: j.nombre, descripcion: `Plantilla: ${j.plantilla}`, estado: j.estado, color: j.color })).join('')}</div>`;
 }
 
 export async function pantallaJuego({ sesion, juego }, cont) {
   const s = buscarSesion(sesion), j = buscarJuego(sesion, juego);
   if (!s || !j) { location.hash = '#/'; return; }
   aplicarEscena(s.escena);
+  if (j.color) cont.style.setProperty('--acento', j.color);   // cada tema de matemática tiene su color
   cont.innerHTML = enlaceVolver(`/sesion/${s.id}`, s.nombre) + `<h1>${esc(j.nombre)}</h1>`;
   const zona = document.createElement('div');
   cont.appendChild(zona);
@@ -71,11 +60,14 @@ export function pantallaModulo({ id }, cont) {
   const m = buscarModulo(id);
   if (!m) { location.hash = '#/'; return; }
   aplicarEscena(m.escena);
+  // Cada módulo vuelve a la sección del menú donde está (Explorar 3D, Jugar, Pizarra)
+  const destino = m.seccion ? `/seccion/${m.seccion}` : '/';
+  const nombreDestino = m.seccion ? m.seccionNombre || 'Inicio' : 'Inicio';
   if (m.compacto) {
     // Herramientas que necesitan toda la pantalla (pizarra, visor 3D): encabezado en una sola línea
-    cont.innerHTML = `<div class="cab-compacta"><a class="volver" href="#/">← Inicio</a><h1>${esc(m.nombre)}</h1></div>`;
+    cont.innerHTML = `<div class="cab-compacta"><a class="volver" href="#${destino}">← ${esc(nombreDestino)}</a><h1>${esc(m.nombre)}</h1></div>`;
   } else {
-    cont.innerHTML = `${enlaceVolver('/', 'Inicio')}<h1>${esc(m.nombre)}</h1><p class="lead">${esc(m.descripcion)}</p>`;
+    cont.innerHTML = `${enlaceVolver(destino, nombreDestino)}<h1>${esc(m.nombre)}</h1><p class="lead">${esc(m.descripcion)}</p>`;
   }
   const zona = document.createElement('div');
   cont.appendChild(zona);

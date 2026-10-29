@@ -1,0 +1,351 @@
+/* BRIGHTER NEXUS · menu.css (usa tema.css) */
+
+/* ============ Pliegues de origami (fondo) ============
+   .fijo : triángulos grandes pegados a los bordes de la pantalla; aparecen
+           difuminándose y se quedan casi quietos (solo respiran un poco).
+   .v    : triangulitos que nacen y se desvanecen (los crea menu.js), siempre
+           en el margen exterior, lejos del círculo y de los botones. */
+.deco{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.deco .tri{position:absolute;display:block;opacity:0;overflow:visible;fill:currentColor}
+.deco .tri.v{animation:t-vida var(--vida,16s) ease-in-out forwards}
+body.tutor .deco{--k:.85}
+@keyframes t-vida{
+  0%  {opacity:0;transform:translate(0,0) rotate(var(--r0,0deg)) scale(var(--s0,.5))}
+  25% {opacity:calc(var(--op,.85)*var(--k,1))}
+  75% {opacity:calc(var(--op,.85)*var(--k,1))}
+  100%{opacity:0;transform:translate(var(--dx,0),var(--dy,0)) rotate(var(--r1,0deg)) scale(var(--s1,1.1))}
+}
+
+.deco .tri.fijo{
+  --op:.9;
+  animation:none;
+}
+body.abierto .deco .tri.fijo{
+  animation:
+    t-entra var(--dur,1.6s) var(--ease) var(--ent,.3s) both,
+    t-flota var(--ciclo,14s) ease-in-out calc(var(--ent,.3s) + var(--dur,1.6s)) infinite alternate;
+}
+body.tutor .deco .tri.fijo{--op:.78}
+@keyframes t-entra{
+  from{opacity:0;transform:scale(var(--e0,.35)) translate(var(--tx,0),var(--ty,0))}
+  to  {opacity:var(--op);transform:none}
+}
+@keyframes t-flota{
+  from{transform:translate(0,0) scale(1);opacity:var(--op)}
+  to  {transform:translate(var(--dx,2vmin),var(--dy,-2vmin));opacity:calc(var(--op) - .1)}
+}
+.deco .t1{color:var(--coral);   left:-8vmin;  bottom:-7vmin; width:40vmin;height:34vmin;--ent:.2s;--dur:1.9s;--e0:.3;--tx:-10vmin;--ty:10vmin;--dx:2.6vmin;--dy:-2.2vmin;--dr:1.5deg;--ds:1.06;--ciclo:9s}
+.deco .t2{color:var(--ambar);   right:-8vmin; bottom:-7vmin; width:38vmin;height:32vmin;--ent:.45s;--dur:1.6s;--e0:.4;--tx:10vmin;--ty:8vmin;--dx:-2.4vmin;--dy:-1.8vmin;--dr:-1.5deg;--ds:1.06;--ciclo:11s}
+.deco .t3{color:var(--verde);   right:-7vmin; top:30vh;      width:24vmin;height:30vmin;--ent:.7s;--dur:1.5s;--e0:.5;--tx:8vmin;--dx:-2.2vmin;--dy:2.4vmin;--dr:-1.2deg;--ds:1.06;--ciclo:10s}
+.deco .t4{color:var(--rojo-osc);left:-6vmin;  top:26vh;      width:22vmin;height:28vmin;--ent:.35s;--dur:1.7s;--e0:.45;--tx:-8vmin;--dx:2.4vmin;--dy:2.2vmin;--dr:1.5deg;--ds:1.06;--ciclo:8s}
+.deco .t5{color:var(--naranja); left:6vmin;   bottom:-5vmin; width:16vmin;height:12vmin;--ent:.9s;--dur:1.2s;--e0:.2;--ty:6vmin;--dx:2vmin;--dy:-1.6vmin;--dr:-2deg;--ds:1.08;--ciclo:7s}
+
+/* ============ Botón de usuario (esquina) ============ */
+.usuario{position:fixed;z-index:11;top:16px;right:24px;width:72px;height:72px;animation:u-entra .7s var(--ease) .2s backwards}
+@keyframes u-entra{from{opacity:0;transform:scale(.5) rotate(-120deg)}to{opacity:1;transform:none}}
+
+.btn-usuario{
+  position:absolute;inset:0;z-index:2;padding:0;border:0;border-radius:50%;cursor:pointer;
+  background:rgba(255,255,255,.92);color:var(--coral);
+  box-shadow:var(--sombra);
+  transition:transform .15s var(--ease),background .5s ease,color .5s ease;
+}
+body.tutor .btn-usuario{background:rgba(52,64,84,.94);color:#fff}
+.btn-usuario:active{transform:scale(.94)}
+/* aro de colores que gira siempre: avisa que es un botón */
+.aro{
+  position:absolute;inset:-6px;border-radius:50%;pointer-events:none;
+  background:conic-gradient(var(--verde),var(--ambar),var(--naranja),var(--coral),var(--rojo-osc),var(--verde));
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));
+          mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));
+  animation:gira 7s linear infinite;
+}
+.cara{position:absolute;inset:0;display:grid;place-items:center}
+.cara svg{position:absolute;width:48%;height:48%;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:opacity .35s ease}
+.cara .ic-tut{opacity:0}
+body.tutor .cara .ic-est{opacity:0}
+body.tutor .cara .ic-tut{opacity:1}
+.btn-usuario.gira .cara{animation:vuelta .8s var(--ease)}
+@keyframes gira{to{transform:rotate(360deg)}}
+@keyframes vuelta{to{transform:rotate(360deg)}}
+
+/* barra de modos: sale desde el botón hacia la izquierda, solo con logos */
+.modos{
+  position:absolute;right:0;top:0;z-index:1;height:72px;width:72px;
+  display:flex;align-items:center;gap:10px;padding:0 0 0 12px;
+  border-radius:36px;overflow:hidden;
+  background:var(--vidrio);border:1px solid var(--vidrio-borde);
+  box-shadow:var(--sombra), inset 0 1px 0 rgba(255,255,255,.25);
+  -webkit-backdrop-filter:blur(16px) saturate(140%);
+          backdrop-filter:blur(16px) saturate(140%);
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:width .5s var(--ease),opacity .25s ease,visibility 0s .5s;
+}
+.usuario.abierto .modos{width:244px;opacity:1;visibility:visible;pointer-events:auto;transition:width .5s var(--ease),opacity .25s ease,visibility 0s}
+.modo{
+  flex:none;width:64px;height:64px;padding:0;border:0;border-radius:50%;cursor:pointer;
+  display:grid;place-items:center;background:transparent;color:var(--texto);
+  transition:transform .15s var(--ease),background .3s ease,color .3s ease;
+}
+.modo svg{width:50%;height:50%;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.modo:active{transform:scale(.94)}
+.modo[aria-pressed="true"]{background:var(--coral);color:#fff;box-shadow:0 8px 18px rgba(254,84,64,.4)}
+
+/* ============ Consejero de bienvenida (arriba a la izquierda) ============
+   Aparece al iniciar, flota con un vaivén suave y se desvanece rápido. */
+.consejero{
+  position:fixed;z-index:12;left:16px;top:6px;
+  display:flex;align-items:center;gap:4px;pointer-events:none;
+  opacity:0;visibility:hidden;
+}
+.consejero.ver{visibility:visible;animation:cons-vida 3.8s ease-in-out forwards}
+.cons-pajaro{
+  width:clamp(104px,14vmin,210px);height:auto;display:block;flex:none;margin-right:1.6vmin;
+  /* silueta blanca del origami (4 pasadas) + sombra suave */
+  filter:
+    drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
+    drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+    drop-shadow(0 10px 12px rgba(40,50,70,.38));
+  animation:cons-vaiven 1.6s ease-in-out infinite alternate;
+}
+.cons-globo{
+  position:relative;display:block;
+  padding:clamp(9px,1.3vmin,16px) clamp(16px,2.1vmin,26px);
+  background:#fff;color:#282828;border-radius:999px;
+  box-shadow:0 10px 24px rgba(40,50,70,.34), 0 2px 6px rgba(40,50,70,.2);
+  animation:cons-globo .55s var(--ease) .15s backwards;
+  transform-origin:left center;
+}
+.cons-globo::before{                     /* colita del globo hacia el pájaro */
+  content:"";position:absolute;left:-6px;top:50%;width:16px;height:16px;margin-top:-8px;
+  background:#fff;transform:rotate(45deg);border-radius:3px;
+  box-shadow:-3px 4px 8px rgba(40,50,70,.18);
+}
+.cons-globo b{display:block;font-weight:700;line-height:1.15;font-size:clamp(16px,2.2vmin,28px);white-space:nowrap;letter-spacing:.1px}
+@keyframes cons-vida{
+  0%  {opacity:0;transform:translateY(-12px) scale(.92)}
+  9%  {opacity:1;transform:none}
+  88% {opacity:1;transform:none}
+  100%{opacity:0;transform:translateY(-6px) scale(.97)}
+}
+@keyframes cons-vaiven{
+  from{transform:translateY(-7px) rotate(-8deg)}
+  to  {transform:translateY(8px) rotate(7deg)}
+}
+@keyframes cons-globo{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+body.apagando .consejero,body.zoom .consejero{opacity:0!important;transition:opacity .2s ease}
+
+/* ============ Botón Inicio (esquina izquierda): aparece con el zoom ============ */
+.btn-inicio{
+  position:fixed;z-index:10;left:24px;top:16px;
+  height:72px;padding:0 34px 0 8px;gap:14px;
+  display:flex;align-items:center;
+  border-radius:999px;background:var(--coral);color:#fff;text-decoration:none;
+  box-shadow:0 8px 18px rgba(254,84,64,.4);
+  font-weight:700;font-size:clamp(16px,2.2vmin,28px);
+  opacity:0;visibility:hidden;pointer-events:none;
+  transform:scale(.8);transform-origin:left center;
+  transition:opacity .3s ease,transform .45s var(--ease),visibility 0s .3s;
+}
+.btn-inicio .logo{width:56px;height:56px;border-radius:50%;background:#fff;display:grid;place-items:center}
+.btn-inicio img{width:74%;transform:translate(-3%,2%)}
+.btn-inicio:active{transform:scale(.96);transition-duration:.12s}
+body.zoom .btn-inicio{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition-delay:.55s,.55s,0s}
+
+/* ============ Logo central: se mece suave, sin moverse del lugar ============ */
+.centro img{animation:flotar 4.2s ease-in-out infinite}
+@keyframes flotar{
+  0%,100%{transform:translate(-3%,2%)}
+  50%    {transform:translate(-3%,-3.5%)}
+}
+
+/* ============ Menú circular ============ */
+.wrap{
+  will-change:transform;
+  --hex:clamp(52px,calc(var(--s)*.09),130px);
+  transform-origin:var(--ox,50%) var(--oy,50%);
+  transition:transform .6s var(--ease),opacity .3s ease;
+}
+
+.op{
+  /* el panel se queda claro (difuminado blanco) también en modo tutor */
+  --papel:#FFFFFF;--texto:#282828;--suave:#4B5563;
+  --R:calc(var(--s)*.475);
+  --g:clamp(4px,calc(var(--s)*.0085),10px);      /* grosor del contorno curvo */
+  position:absolute;width:47.5%;height:47.5%;z-index:1;
+  isolation:isolate;transform:translateZ(0);backface-visibility:hidden;
+  display:block;overflow:hidden;text-decoration:none;color:var(--texto);
+  background:color-mix(in srgb,var(--c) 9%,var(--papel));
+  box-shadow:var(--sombra);
+  opacity:0;
+  transition:transform .15s var(--ease),box-shadow .2s ease,background .6s ease;
+}
+.op-txt{transition:transform .15s var(--ease)}
+.op:active .op-txt{transform:translate(-50%,-50%) scale(.94)}
+
+/* fotos: dos por botón, se alternan con fundido suave y un acercamiento lento */
+.fotos{position:absolute;inset:0;z-index:0;transform:translateZ(0);opacity:0}
+/* 1) las piezas se abren solo con color  2) luego las fotos aparecen con fundido  (evita parpadeos al entrar) */
+body.fotos-listas .fotos{opacity:1;transition:opacity .9s ease .35s}
+/* al tocar un botón: las fotos se desvanecen primero (y se detienen); recién después viene el zoom */
+body.apagando .fotos,body.zoom .fotos{opacity:0;transition:opacity .35s ease}
+body.zoom .fotos{visibility:hidden;transition:opacity .35s ease,visibility 0s .35s}
+body.apagando .foto,body.zoom .foto{animation-play-state:paused}
+.foto{animation-play-state:paused}
+.foto{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;
+  will-change:transform,opacity;
+}
+.f1{animation:foto-zoom-a 14s ease-in-out var(--ph,0s) infinite}
+.f2{opacity:0;animation:foto-zoom-b 14s ease-in-out var(--ph,0s) infinite,foto-b 14s ease-in-out var(--ph,0s) infinite}
+@keyframes foto-zoom-a{0%,100%{transform:scale(1.03) translate(0,0)}50%{transform:scale(1.15) translate(-2.5%,-2%)}}
+@keyframes foto-zoom-b{0%,100%{transform:scale(1.15) translate(2.5%,1.5%)}50%{transform:scale(1.03) translate(0,0)}}
+@keyframes foto-b{0%,38%{opacity:0}50%,88%{opacity:1}100%{opacity:0}}
+
+/* filtro de color claro + resplandor suave detrás del texto para que se lea */
+.velo{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 66% 46% at var(--x) var(--y),
+      color-mix(in srgb,var(--papel) 90%,transparent) 0%,
+      color-mix(in srgb,var(--papel) 62%,transparent) 58%,
+      transparent 100%),
+    color-mix(in srgb,color-mix(in srgb,var(--c) 30%,var(--papel)) 52%,transparent);
+  transition:background .6s ease;
+}
+
+/* modo tutor: los botones ganan color (más saturados, menos blanco) */
+body.tutor .op{background:color-mix(in srgb,var(--c) 30%,#fff)}
+body.tutor .velo{
+  background:
+    radial-gradient(ellipse 60% 40% at var(--x) var(--y),
+      rgba(255,255,255,.82) 0%, rgba(255,255,255,.5) 58%, transparent 100%),
+    color-mix(in srgb,color-mix(in srgb,var(--c) 70%,#fff) 58%,transparent);
+}
+body.tutor .foto{filter:saturate(1.35) contrast(1.04)}
+
+/* contorno de color solo en la parte curva de cada botón.
+   Es un borde real (no una máscara): se queda nítido y no parpadea al hacer zoom. */
+.op::before{
+  content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  border-radius:inherit;border:0 solid var(--c);
+  border-width:var(--bw);
+}
+
+/* texto + ícono, acomodados en la franja entre el círculo y el borde */
+.op-txt{
+  position:absolute;z-index:3;left:var(--x);top:var(--y);transform:translate(-50%,-50%);
+  width:80%;display:grid;justify-items:center;gap:calc(var(--s)*.008);text-align:center;
+}
+.op b{font-weight:800;letter-spacing:-.3px;line-height:1.1;font-size:clamp(20px,calc(var(--s)*.04),60px)}
+.op small{font-weight:600;color:var(--suave);line-height:1.2;font-size:clamp(14px,calc(var(--s)*.022),30px)}
+
+/* Un cuarto de disco cada uno: la esquina exterior se redondea al 100% */
+.op-1{left:0;top:0;border-radius:100% 0 0 0;
+  --o:110% 110%;--d:.12s;--x:55%;--y:52%;--ph:0s;
+  --bw:var(--g) 0 0 var(--g)}
+.op-2{left:52.5%;top:0;border-radius:0 100% 0 0;
+  --o:-10% 110%;--d:.2s;--x:45%;--y:52%;--ph:-3.5s;
+  --bw:var(--g) var(--g) 0 0}
+.op-3{left:0;top:52.5%;border-radius:0 0 0 100%;
+  --o:110% -10%;--d:.28s;--x:55%;--y:48%;--ph:-7s;
+  --bw:0 0 var(--g) var(--g)}
+.op-4{left:52.5%;top:52.5%;border-radius:0 0 100% 0;
+  --o:-10% -10%;--d:.36s;--x:45%;--y:48%;--ph:-10.5s;
+  --bw:0 var(--g) var(--g) 0}
+
+/* Entrada automática: las 4 piezas se abren desde el centro y se quedan abiertas */
+body.abierto .op{opacity:1;animation:abrir .6s var(--ease) var(--d) backwards}
+@keyframes abrir{
+  from{opacity:0;transform:scale(.5);transform-origin:var(--o)}
+  to  {opacity:1;transform:scale(1);transform-origin:var(--o)}
+}
+
+/* Mega zoom: todo el menú se acerca hacia el botón tocado */
+body.zoom .wrap{
+  transform:scale(5.5);opacity:0;pointer-events:none;
+  transition:transform .85s cubic-bezier(.55,0,.2,1),opacity .35s ease .4s;
+}
+
+/* ============ Pantallas del zoom ============ */
+.seccion{
+  position:fixed;inset:0;z-index:5;
+  padding:104px 24px 24px;
+  display:flex;overflow-y:auto;
+  opacity:0;visibility:hidden;
+  transition:opacity .3s ease,visibility 0s .3s;
+}
+.seccion.activa{opacity:1;visibility:visible;transition:opacity .4s ease .45s,visibility 0s .45s}
+
+/* pliegues de color de la sección, entran desde las esquinas */
+.seccion::before,.seccion::after{content:"";position:fixed;z-index:-1;pointer-events:none;background:var(--c);transition:transform .8s var(--ease) .35s}
+.seccion::before{right:-7vmin;bottom:-7vmin;width:46vmin;height:40vmin;clip-path:polygon(100% 0,100% 100%,0 100%);transform:translate(30%,30%)}
+.seccion::after{left:-5vmin;top:34vh;width:20vmin;height:26vmin;clip-path:polygon(0 0,100% 50%,0 100%);background:color-mix(in srgb,var(--c) 76%,#000);transform:translateX(-80%)}
+.seccion.activa::before{transform:none}
+.seccion.activa::after{transform:none}
+
+.contenido{margin:auto;width:100%;display:grid;justify-items:center;gap:clamp(20px,3.6vmin,56px);padding:8px 0}
+
+.cabecera{display:flex;align-items:center;gap:clamp(14px,2vmin,28px)}
+.cabecera .hex{--hex:clamp(64px,8vmin,120px)}
+.cabecera h2{margin:0;font-weight:800;letter-spacing:-.3px;line-height:1.1;font-size:clamp(28px,4.1vmin,64px)}
+.cabecera p{margin:2px 0 0;font-weight:500;color:var(--suave);font-size:clamp(16px,2.2vmin,30px)}
+
+.rejilla{
+  --ancho:clamp(280px,34vmin,720px);
+  width:min(100%,calc(var(--cols,3)*var(--ancho)));
+  display:grid;grid-template-columns:repeat(var(--cols,3),minmax(0,1fr));gap:clamp(16px,2.4vmin,36px);
+}
+@media (max-width:760px){.rejilla{grid-template-columns:1fr}}
+
+.tarjeta{
+  position:relative;min-height:160px;
+  display:grid;align-content:start;gap:10px;
+  padding:clamp(20px,2.8vmin,40px) clamp(20px,2.8vmin,40px) calc(clamp(20px,2.8vmin,40px) + 3px);
+  color:var(--texto);text-decoration:none;
+  background:var(--vidrio);
+  border:1px solid var(--vidrio-borde);border-bottom:3px solid var(--c);
+  border-radius:26px;
+  box-shadow:var(--sombra), inset 0 1px 0 rgba(255,255,255,.25);
+  -webkit-backdrop-filter:blur(16px) saturate(140%);
+          backdrop-filter:blur(16px) saturate(140%);
+  transition:transform .15s var(--ease),background .2s ease;
+}
+.tarjeta:active{transform:scale(.96);background:color-mix(in srgb,var(--c) 12%,rgba(255,255,255,.64))}
+.tarjeta .hex{--hex:clamp(64px,8vmin,120px)}
+.tarjeta h3{margin:6px 0 0;font-weight:800;line-height:1.15;font-size:clamp(22px,3.2vmin,48px)}
+.tarjeta p{margin:0;font-weight:500;color:var(--suave);line-height:1.35;font-size:clamp(16px,2.2vmin,30px)}
+.etiqueta{
+  position:absolute;top:clamp(16px,2.4vmin,32px);right:clamp(16px,2.4vmin,32px);
+  padding:6px 14px;border-radius:999px;
+  background:color-mix(in srgb,var(--c) 14%,#fff);color:var(--texto);
+  font-weight:700;font-size:clamp(14px,1.8vmin,22px);
+}
+
+/* las tarjetas suben 12px y aparecen en cascada */
+.seccion.activa .cabecera{animation:sube .55s var(--ease) .55s backwards}
+.seccion.activa .tarjeta{animation:sube .55s var(--ease) calc(.7s + var(--i)*60ms) backwards}
+@keyframes sube{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* Aviso de demostración (se puede borrar cuando exista el enrutador real) */
+.aviso{
+  position:fixed;left:50%;bottom:28px;z-index:20;transform:translate(-50%,20px);
+  padding:16px 28px;border-radius:999px;background:#282828;color:#fff;
+  font-weight:700;font-size:clamp(16px,2.2vmin,26px);
+  opacity:0;pointer-events:none;transition:opacity .25s ease,transform .35s var(--ease);
+}
+.aviso.ver{opacity:1;transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion:reduce){
+  body.zoom .wrap{transition:opacity .2s ease}
+  .op,.seccion *,.usuario,.aro,.centro img,.cons-pajaro,.cons-globo{animation:none!important}
+  .deco .tri{animation:none!important;opacity:.8}
+  .foto{animation:none!important}.f2{opacity:0}
+  .seccion::before,.seccion::after{transition:none}
+}
+
+/* ============ Conexión con Nexus ============
+   Al volver a una sección ya abierta (botón "atrás") el menú se arma de golpe, sin repetir las animaciones. */
+body.instantaneo *,body.instantaneo *::before,body.instantaneo *::after{
+  transition:none!important;animation-delay:0s!important;animation-duration:.001s!important;
+}

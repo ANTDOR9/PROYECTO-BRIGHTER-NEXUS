@@ -30,6 +30,8 @@ export default {
   id: 'pizarra',
   nombre: 'Pizarra',
   escena: 'pizarra',
+  seccion: 'pizarra',
+  seccionNombre: 'Pizarra',
   descripcion: 'Escribir, dibujar, insertar imágenes, PDF o video y guardar la clase.',
   estado: 'prototipo',
   compacto: true,

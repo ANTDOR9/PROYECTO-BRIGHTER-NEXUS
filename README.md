@@ -3,16 +3,20 @@
 Plataforma educativa para pantallas interactivas BTOUCH (Android 15 y Windows 11 OPS).
 Una sola app para el profesor con: **pizarra digital**, **kit de actividades** (matemática, lenguaje y ciencias) y **biblioteca de modelos 3D**. Funciona sin internet.
 
-## Estado: prototipo (v0.3)
+## Estado: prototipo (v0.4)
 
 | Pieza | Estado |
 | --- | --- |
-| Intro de inicio | Espacio reservado, configurable en `app/contenido/intro.json` |
+| Carga y menú | Pantalla de carga y menú circular (Aprender · Explorar 3D · Jugar · Pizarra) con diseño propio; las secciones salen del registro |
+| Quiz de Ciencias | Quiz con vidas, focos y repaso, y el juego del conejo de fondo (se puede apagar); suma al perfil del alumno |
 | Pizarra | Lápiz, borrador, línea, rectángulo, círculo, colores, grosores, deshacer/rehacer, fondo oscuro/blanco, multitáctil, guardado automático y exportar PNG |
 | Biblioteca 3D | Catálogo con miniaturas y filtros; 9 modelos descargados (5 aptos para licitación), sistema solar y cubo en código; créditos y licencias |
 | Actividades | Una por curso: multiplicación (completar), el cuento (ordenar), la célula (elegir) |
 | Motor de puntaje | Común a todas las actividades, con progreso por juego |
-| Divisiones | Por migrar (ver `app/sesiones/matematica/divisiones/index.js`) |
+| Multiplicación en columnas | Prototipo: plantilla `columnas` (paso a paso, color naranja) |
+| Tablas de multiplicar | Prototipo (antes "Multiplicación") |
+| Empaquetado | APK (Capacitor) y Windows (Electron): ver `docs/EMPAQUETADO.md` |
+| Divisiones | Prototipo: el juego de nasa-cell completo, con su estética, dentro de un marco (`app/sesiones/matematica/divisiones/`) |
 
 ## Probar en el navegador
 
@@ -31,7 +35,7 @@ npm run modelos     # prepara los modelos 3D nuevos (ver abajo)
 npm i -D playwright
 npx playwright install chromium     # una sola vez
 npm run servir                      # en otra terminal
-npm run prueba:prototipo            # 25 comprobaciones; capturas en pruebas/capturas/
+npm run prueba:prototipo            # comprobaciones de punta a punta; capturas en pruebas/capturas/
 ```
 
 ## Agregar modelos 3D
@@ -44,9 +48,14 @@ npm run prueba:prototipo            # 25 comprobaciones; capturas en pruebas/cap
 
 ## Poner la intro
 
-Cuando exista la intro real, copia el video o la imagen a `app/contenido/intro/` y cambia `app/contenido/intro.json`
-(`"tipo": "video"` o `"imagen"`, y `"archivo": "mi-intro.mp4"`). No hay que tocar código.
-Se muestra una vez por sesión; en el inicio hay un enlace "Ver la intro otra vez".
+Por ahora la entrada es la pantalla de carga (el logo con un anillo de colores). Cuando exista la intro real, copia el video o la imagen a
+`app/contenido/intro/` y cambia `app/contenido/intro.json` (`"tipo": "video"` o `"imagen"`, y `"archivo": "mi-intro.mp4"`). No hay que tocar código.
+Se muestra una vez por sesión.
+
+## Menú y quiz
+
+El menú (`app/menu/`) y el quiz con su juego (`app/quiz/`) tienen su propio diseño; Nexus apaga sus estilos mientras se ven (ver «Menú, quiz y pantallas con diseño propio» en
+`docs/ARQUITECTURA.md`). El quiz se abre desde **Jugar → Quiz** y desde la sesión de Ciencias; para agregar un tema de quiz, ver `app/quiz/LEEME.md`.
 
 ## Dónde está cada cosa
 

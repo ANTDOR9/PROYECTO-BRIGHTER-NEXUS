@@ -9,6 +9,8 @@ export default {
   juegos: [
     { id: 'vida', nombre: 'Vida · La célula', plantilla: 'elegir', estado: 'prototipo', actividad: 'ciencias/celula-elegir.json' },
     { id: 'fisica-quimica', nombre: 'Física y química', plantilla: 'simulacion · elegir · clasificar', estado: 'pendiente' },
-    { id: 'tierra-universo', nombre: 'Tierra y Universo', plantilla: 'etiquetar · ordenar-secuencia · simulacion', estado: 'pendiente' }
+    { id: 'tierra-universo', nombre: 'Tierra y Universo', plantilla: 'etiquetar · ordenar-secuencia · simulacion', estado: 'pendiente' },
+    // El quiz con vidas y focos (y el juego del conejo de fondo) tiene su propia pantalla: ver quiz/pantalla.js
+    { id: 'quiz', nombre: 'Quiz de ciencias', plantilla: 'quiz + juego', estado: 'prototipo', ruta: '/quiz' }
   ]
 };

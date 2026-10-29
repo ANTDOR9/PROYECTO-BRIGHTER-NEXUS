@@ -14,12 +14,16 @@ brighter-nexus/
 │  ├─ estilos/            tema.css (colores y fondos por sesión) · base.css · modulos.css
 │  ├─ nucleo/             lo que usan TODAS las sesiones
 │  │   ├─ app.js          arranque, rutas, perfil activo
-│  │   ├─ enrutador.js    navegación por #/ruta (cada pantalla recibe su propio contenedor)
+│  │   ├─ enrutador.js    navegación por #/ruta (cada pantalla recibe su propio contenedor; admite ?consulta, fijarHash y proteger)
 │  │   ├─ registro.js     sesiones y módulos registrados
-│  │   ├─ intro.js        intro de inicio (espacio reservado, configurable en contenido/intro.json)
+│  │   ├─ intro.js        intro con video o imagen (contenido/intro.json); mientras sea 'reservado' se ve la pantalla de carga
+│  │   ├─ estilos-propios.js   apaga los estilos de Nexus mientras se ve una pantalla con diseño propio (carga, menú, quiz)
+│  │   ├─ pantallas-menu.js    carga, menú, quiz y «nueva clase» de la pizarra: conexión con el enrutador
+│  │   ├─ menu-datos.js        arma las secciones del menú desde el registro de sesiones y módulos
+│  │   ├─ puente-quiz.js       las partidas del quiz suman al perfil del alumno
 │  │   ├─ ronda.js        corre una actividad de varios ejercicios con CUALQUIER plantilla y aplica el puntaje
 │  │   ├─ aviso.js        avisos cortos (medallas)
-│  │   ├─ pantallas.js    inicio, sesión, juego, módulo
+│  │   ├─ pantallas.js    sesión, juego, módulo
 │  │   ├─ puntaje.js      estrellas, puntos con reloj, escalera, focos, nivel recomendado
 │  │   ├─ ayuda.js        pistas que se retiran por tipo de paso
 │  │   ├─ perfil.js       alumno y progreso por juego
@@ -33,7 +37,9 @@ brighter-nexus/
 │  ├─ bibliotecas/        Three.js y OrbitControls incluidos (el visor 3D funciona sin internet)
 │  ├─ sesiones/           matematica/ · lenguaje/ · ciencias/  (cada una con su manifiesto)
 │  │   └─ matematica/divisiones/   primer juego a migrar desde el repositorio de divisiones
-│  ├─ modulos/            pizarra/ · biblioteca3d/ (catálogo, visor, créditos) · mediateca/
+│  ├─ modulos/            pizarra/ · biblioteca3d/ (catálogo, visor, créditos) · mediateca/ · juegos/ (reservado)
+│  ├─ menu/               el menú circular y la pantalla de carga (diseño propio): menu.js · cargando.js · menu.css · cargando.css · tema.css · img/
+│  ├─ quiz/               el quiz de Ciencias con su juego de fondo (diseño propio): pantalla.js · css/ · js/ · juegos/ · temas/ · vendor/ · fuentes/
 │  └─ contenido/          datos: actividades (JSON), intro.json, requisitos de las bases y modelos3d/ (lo genera `npm run modelos`)
 ├─ herramientas/          servir.js · verificar-kit.js · modelos.js (prepara los modelos 3D)
 ├─ modelos-entrada/       (no se sube) aquí se dejan los visores .html nuevos antes de procesarlos
@@ -105,6 +111,35 @@ Los tipos de paso (`tipos`) los define cada juego: en divisiones serán `cabe, m
 - Cada sesión tiene su acento y su fondo: `fondo.aplicarEscena('matematica')` cambia degradado, color de acento y símbolos con un fundido de ~1 s. Las escenas se definen en `fondo.js` y los colores en `tema.css`.
 - Escenas actuales: inicio, matematica, lenguaje, ciencias, biblioteca3d, pizarra, mediateca.
 
+## Menú, quiz y pantallas con diseño propio
+
+El menú (`menu/`) y el quiz con su juego (`quiz/`) se diseñaron aparte, con su propia hoja de estilos y sus propios nombres de clase
+(`.tarjeta`, `.rejilla`, `.btn`, `.hex`…, que Nexus también usa). Para que no se pisen:
+
+- **Aislamiento de estilos.** `nucleo/estilos-propios.js`: mientras se ve la carga, el menú o el quiz, los `<link data-nexus>` de `index.html` se apagan
+  (`media="not all"`) y corren solo los estilos de esa pantalla; al salir se invierte. La barra superior y el fondo de Nexus se ocultan. Las hojas propias
+  se descargan al arrancar (`precargarEstilos`), así que el cambio es instantáneo. Para dar de alta otra pantalla propia: agregar su grupo en `GRUPOS` y llamar
+  `entrarPantallaPropia('grupo')` al montarla (devuelve la función para salir).
+- **Rutas** (en `app.js`):
+
+| Ruta | Pantalla |
+| --- | --- |
+| `#/intro` | carga (logo con anillo); pasa sola al menú. Si `intro.json` trae video o imagen, se usa esa intro |
+| `#/` · `#/seccion/:id` | el menú (con la sección abierta, si se indica). Abrir o cerrar una sección cambia la dirección con `fijarHash`, sin redibujar |
+| `#/quiz` · `#/quiz/:juego?tema=` | el quiz (`conejo` o `ninguno` = sin juego; el tema es el id de `quiz/temas/index.js`) |
+| `#/pizarra/nueva` | pregunta si hay una clase guardada y abre la pizarra en blanco (o continúa la guardada) |
+| `#/sesion/…` · `#/juego/…` · `#/modulo/…` | pantallas con los estilos de Nexus; vuelven a su sección del menú con «← Aprender», «← Explorar 3D», etc. |
+
+- **Enrutador.** Lo que va después de `?` no cuenta para elegir la ruta y llega en `params.q`. `fijarHash(ruta)` cambia la dirección sin volver a dibujar la pantalla;
+  `proteger(async () => true|false)` deja que la pantalla actual frene la salida (el quiz pregunta «¿Salir de la partida?» al usar Inicio, «atrás» o cualquier enlace).
+- **El menú sale del registro.** `menu-datos.js`: Aprender = una tarjeta por cada sesión registrada (una sesión nueva aparece sola); Explorar 3D = los módulos con `seccion: 'explorar'`;
+  Jugar y Pizarra tienen sus opciones ahí mismo. Cada módulo declara `seccion` y `seccionNombre` para saber adónde vuelve.
+- **El quiz es de Ciencias** (por ahora). Se abre desde Jugar → Quiz y desde la sesión de Ciencias («Quiz de ciencias»). Cada partida terminada se guarda en el perfil como
+  `perfil.juegos['ciencias/quiz-<tema>']` (estrellas, mejor puntaje, rondas y días de uso) con `puente-quiz.js`; el motor interno del quiz (vidas, focos, puntos) es el suyo.
+- **Agregar un tema de quiz:** copiar `quiz/temas/ciencias/seres-vivos.js`, y en `quiz/temas/index.js` ponerle `estado: "listo"` y `cargar`. Hay 21 temas listados («Pronto»).
+  **Agregar un juego al quiz:** crear `quiz/juegos/<id>/<id>.js` con el contrato de `quiz/LEEME.md` y sumarlo en `quiz/juegos/index.js`.
+- **Pendiente:** los juegos originales (`#/modulo/juegos`, hoy «Pronto»); el quiz para otras materias; llevar la estética del menú (colores, Poppins) a las demás pantallas de Nexus.
+
 ## Qué tomar del repositorio de divisiones
 
 | Archivo origen | Destino en Nexus |
@@ -137,7 +172,7 @@ Al migrar se quitan los campos de autor y licencia del código de origen.
 
 ## Prototipo v0.3: lo que hay y cómo se probó
 
-- **Intro:** al abrir la app se ve una vez por sesión. Hoy es un marco 16:9 con el logo y la etiqueta "Espacio reservado para la intro". Se cambia por video o imagen desde `intro.json`.
+- **Carga y menú:** al abrir la app se ve una vez por sesión la pantalla de carga (logo con anillo) y pasa al menú. Si `intro.json` trae un video o una imagen, se muestra esa intro primero.
 - **Pizarra:** los trazos se guardan con coordenadas relativas al ancho, así la clase se ve igual en cualquier pantalla. Cada dedo dibuja su propio trazo. La clase se guarda sola y se restaura al volver. Falta insertar imagen, PDF o video, varias páginas y texto.
 - **Biblioteca 3D:** los 3 modelos se arman en código con figuras simples (corazón y sistema solar son versiones simplificadas). El contrato en `modelos.js` permite cambiarlos por archivos glTF/GLB más adelante sin tocar el visor. El panel de información no cambia de tamaño al elegir una parte, para que el modelo no "salte".
 - **Actividades:** las tres pasan por `ronda.js` y el mismo motor de puntaje; el progreso queda por juego (`matematica/multiplicacion`, `lenguaje/cuento`, `ciencias/vida`).
@@ -195,3 +230,23 @@ Para cada visor `.html`: saca el modelo y la configuración que traía incrustad
 - **Probado:** Chromium con WebGL por software, con ratón y con toques simulados. Falta probar en una pantalla BTOUCH real, sobre todo el multitáctil con varios dedos y la velocidad del visor 3D.
 - **Marcos (`iframe`) y la política de seguridad:** `index.html` permite `frame-src 'self'` para mostrar los visores de los modelos. Los visores traen scripts propios en línea; funcionan porque son documentos aparte (la política de la página principal no se hereda). Si un día se sirven con `srcdoc` o `blob:`, sí heredarían la política y dejarían de funcionar.
 - **Modelos comprimidos y WebAssembly:** el decodificador meshopt es WebAssembly. Lo traen todos los navegadores actuales y WebView de Android; si algún empaquetado lo bloquea, el visor mostrará «No se pudo cargar el modelo».
+
+## Divisiones dentro de Nexus (v0.4.1)
+
+El juego de divisiones de nasa-cell va **completo y sin cambios** en `app/sesiones/matematica/divisiones/juego/` y se muestra a
+pantalla completa en un marco (`iframe`), igual que los modelos 3D. Así conserva su estética (Nunito y Lilita One, símbolos flotantes,
+colores por nivel), sus alumnos, el aprendizaje que hace de cada uno, las pistas y el informe PDF. Nexus solo pone el botón
+"← Matemática" y, al salir, suma al perfil de Nexus las divisiones hechas (`matematica/divisiones`). Los datos del juego viven en
+`localStorage['juegoDivisiones.v1']`, que el marco comparte con Nexus.
+
+Para los demás temas de matemática (multiplicación, sistema decimal, población y muestra, formando triángulos) la idea es hacer
+sus adaptaciones con esa misma estética (mismas fuentes, colores y tablero de casillas).
+
+## Un color por tema de matemática (v0.4.3)
+
+Mismo estilo (el del juego de divisiones: `estilos/matematica.css`, Lilita One, bordes gruesos, teclas con sombra), pero cada tema trae su
+color en el campo `color` de `sesiones/matematica/index.js`; la pantalla del juego lo aplica como `--acento`:
+Multiplicación y Tablas naranja `#FF8A3D` · Divisiones lima `#B8FF3B` · Sistema decimal cian `#22D3EE` · Población y muestra rosa `#FF4FB8` ·
+Formando triángulos amarillo `#FFD83B`.
+Plantilla nueva `columnas` (`plantillas/columnas.js`): multiplicación en columnas, un número por paso, llevadas visibles y suma final de
+las filas parciales si el multiplicador tiene dos cifras. Contenido: `contenido/matematica/multiplicacion-columnas.json` (13 ejercicios).

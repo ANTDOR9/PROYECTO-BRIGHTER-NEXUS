@@ -89,6 +89,8 @@ export default {
   id: 'biblioteca3d',
   nombre: 'Biblioteca 3D',
   escena: 'biblioteca3d',
+  seccion: 'explorar',
+  seccionNombre: 'Explorar 3D',
   descripcion: 'Modelos 3D para explorar: girar, acercar y conocer sus partes.',
   estado: 'prototipo',
   compacto: true,

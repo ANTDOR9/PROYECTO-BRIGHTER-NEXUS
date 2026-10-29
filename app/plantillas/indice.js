@@ -9,6 +9,7 @@
 export const PLANTILLAS = [
   { id: 'elegir', nombre: 'Elegir', estado: 'listo' },
   { id: 'completar', nombre: 'Completar', estado: 'listo' },
+  { id: 'columnas', nombre: 'Columnas (multiplicación paso a paso)', estado: 'listo' },
   { id: 'ordenar-secuencia', nombre: 'Ordenar secuencia', estado: 'listo' },
   { id: 'clasificar', nombre: 'Clasificar', estado: 'pendiente' },
   { id: 'emparejar', nombre: 'Emparejar', estado: 'pendiente' },

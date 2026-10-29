@@ -1,0 +1,47 @@
+/* Matemática: mismo lenguaje visual que el juego de divisiones (títulos Lilita One, bordes gruesos, teclas con sombra).
+   Cada tema cambia SOLO el color (--acento) que le pone su pantalla. */
+@font-face { font-family: "Lilita One"; font-weight: 400; font-style: normal; font-display: swap;
+  src: url("../sesiones/matematica/divisiones/juego/fuentes/LilitaOne-400-latin.woff2") format("woff2"); }
+
+.columnas { max-width: 640px; border: 3px solid var(--acento); text-align: center; }
+.columnas h3 { font-family: "Lilita One", var(--fuente); letter-spacing: .04em; }
+.columnas .instruccion { margin: 0 0 14px; color: var(--suave); font-weight: 800; }
+
+.col-rejilla {
+  --celda: clamp(40px, 9vw, 64px);
+  display: grid; grid-template-columns: repeat(var(--cols), var(--celda)); grid-auto-rows: var(--celda);
+  justify-content: center; margin: 4px auto 18px; padding: 14px 18px;
+  background: rgba(0, 0, 0, .3); border: 2px solid var(--borde); border-radius: 18px;
+}
+.col-celda {
+  display: grid; place-items: center; font-style: normal; font-family: "Lilita One", var(--fuente);
+  font-size: calc(var(--celda) * .62); line-height: 1; color: var(--texto); border-radius: 10px;
+}
+.col-celda.fija { color: var(--texto); }
+.col-celda.cero { color: rgba(255, 255, 255, .28); }
+.col-celda.llevada { font-size: calc(var(--celda) * .38); color: var(--acento); align-self: end; }
+.col-celda.raya { border-top: 4px solid var(--texto); border-radius: 0; }
+.col-celda.puesto { color: var(--acento); animation: col-pop .35s ease; }
+.col-celda.foco { background: rgba(255, 255, 255, .12); outline: 2px solid var(--suave); }
+.col-celda.actual { background: rgba(255, 255, 255, .06); outline: 3px dashed var(--acento); }
+@keyframes col-pop { 0% { transform: scale(.4); } 70% { transform: scale(1.18); } 100% { transform: none; } }
+
+.col-pregunta { margin: 0 0 10px; font-family: "Lilita One", var(--fuente); font-size: clamp(22px, 4.5vw, 30px); }
+.col-respuesta {
+  min-width: 120px; margin: 0 auto 6px; padding: 8px 22px; display: inline-block;
+  font-family: "Lilita One", var(--fuente); font-size: 40px; letter-spacing: .08em; color: var(--texto);
+  background: rgba(0, 0, 0, .35); border: 3px solid var(--acento); border-radius: 16px;
+}
+.col-respuesta.vacia { color: rgba(255, 255, 255, .3); }
+.col-respuesta.mal { border-color: #FF5A5A; animation: col-tiembla .3s; }
+@keyframes col-tiembla { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+.columnas .teclado { display: grid; grid-template-columns: repeat(3, minmax(64px, 88px)); gap: 10px; justify-content: center; margin-top: 12px; }
+.columnas .tecla {
+  min-height: 62px; font: inherit; font-family: "Lilita One", var(--fuente); font-size: 28px; color: #031F2B;
+  background: var(--acento); border: 0; border-radius: 16px; box-shadow: 0 5px 0 rgba(0, 0, 0, .35); cursor: pointer;
+}
+.columnas .tecla:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0, 0, 0, .35); }
+.columnas .tecla.aux { color: var(--texto); background: var(--tarjeta); border: 2px solid var(--borde); }
+.columnas .tecla.ok { background: var(--lima); }
+.columnas .tecla:disabled { opacity: .4; cursor: default; }

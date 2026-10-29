@@ -1,0 +1,215 @@
+ESTÉTICA BASE · BRIGHTER NEXUS
+Guía de diseño para construir el MENÚ (pantalla de inicio) de la plataforma
+================================================================================
+
+Para quién es este documento
+----------------------------
+Para quien (persona o IA) vaya a escribir el código del menú de Brighter Nexus.
+Aquí está QUÉ estética usar y POR QUÉ. Al final hay lo que el código debe respetar
+para encajar en la app que ya existe.
+
+Qué es Brighter Nexus
+---------------------
+Una aplicación educativa para pantallas interactivas BTOUCH (Android 15 y Windows 11),
+que usa un profesor frente a un grupo y que también usan los estudiantes tocando la
+pantalla. Es para estudiantes EN GENERAL: no hay distinción de edad ni de nivel en la
+interfaz (nada de "primaria" o "secundaria", nada de lenguaje infantil ni de adulto
+corporativo). Debe verse clara, amable y profesional a la vez.
+Funciona sin internet.
+
+La idea en una frase
+--------------------
+"Origami luminoso": una interfaz clara, limpia y optimista, hecha de formas geométricas
+(triángulos de papel plegado) y colores cálidos del logo de Brighter, con paneles de
+vidrio esmerilado y botones grandes con forma de píldora.
+
+Punto de partida: el logo
+-------------------------
+El logo de Brighter es un pájaro de origami (formas triangulares planas) en verde azulado,
+coral, naranja, rojo y ámbar, junto a la palabra "Brighter" en gris casi negro, sobre blanco.
+De ahí sale TODA la estética:
+  - Formas: triángulos y facetas planas (low-poly), sin degradados dentro de las formas.
+  - Colores: los del pájaro (medidos del logo).
+  - Voz: tipografía redonda y limpia, como la palabra "Brighter".
+  - Fondo: claro, luminoso (el logo vive sobre blanco).
+
+Paleta (colores medidos del logo)
+---------------------------------
+  Verde azulado ........ #2CBB92   ala del pájaro
+  Coral ................ #FE5440   cuerpo del pájaro (color principal de marca)
+  Naranja .............. #FE6D31   cabeza
+  Ámbar ................ #F6952D   cola
+  Rojo ................. #E72624   pico
+  Rojo oscuro .......... #C9202E   sombra de la cola
+  Texto principal ...... #282828   la palabra "Brighter" (no usar negro puro)
+  Blanco ............... #FFFFFF
+
+Color de marca para botones, foco y selección: coral #FE5440 (en los visores 3D ya
+existentes se usa un tono muy cercano, #E54D28; si hay que elegir, gana el coral del logo).
+
+Colores por sesión (tarjetas del menú)
+--------------------------------------
+Cada sesión tiene un color de acento sacado del logo. Se usa en el borde/franja de la
+tarjeta, el ícono hexagonal y el estado "seleccionado":
+  Matemática ........... verde azulado  #2CBB92
+  Lenguaje ............. coral          #FE5440
+  Ciencias ............. ámbar          #F6952D
+Las herramientas (Pizarra, Biblioteca 3D, Mediateca) NO llevan color propio: usan el
+rojo oscuro #C9202E para su ícono, y así se distinguen de un vistazo de las sesiones.
+Los colores se usan en superficies pequeñas (franjas, íconos, píldoras). Nunca pintar
+una pantalla entera de un color saturado.
+
+Fondo
+-----
+  Tema claro (por defecto):
+    degradado radial suave: centro #F7F8FA, medio #ECEEF2, borde #D9DDE3
+    (CSS: radial-gradient(ellipse at 50% 38%, #F7F8FA 0%, #ECEEF2 52%, #D9DDE3 100%))
+  Tema oscuro (opcional, mismo lenguaje, gris y no negro):
+    radial-gradient(ellipse at 50% 50%, #808080 0%, #5C5C5C 45%, #3A3A3A 100%)
+  Decoración: triángulos grandes y planos del logo asomando en las esquinas
+  (coral, ámbar, verde azulado), recortados por el borde de la pantalla, con opacidad
+  ~0.9 en claro y ~0.8 en oscuro. Deben flotar muy despacio (movimiento de ~1 vmin
+  en 14 s) y NO estorbar: pointer-events:none, nunca detrás de texto importante.
+  Respetar prefers-reduced-motion (sin movimiento).
+
+Tipografía
+----------
+Familia: "Poppins", "Nunito", "Segoe UI", system-ui, sans-serif
+  (Poppins si está instalada; si no, Nunito; si no, Segoe UI). Idealmente incluir
+  Poppins localmente (licencia OFL) para que se vea igual en todos los equipos.
+  NO cargar fuentes desde internet.
+Pesos: 800 títulos · 700 botones y etiquetas · 600 texto de apoyo · 500 subtítulos.
+Tamaños (la pantalla se lee a 2–3 metros; usar clamp con unidades de viewport):
+  Título de pantalla ........ clamp(28px, 4.1vmin, 46px), peso 800, letter-spacing -0.3px
+  Título de tarjeta ......... clamp(22px, 3.2vmin, 34px), peso 800
+  Texto de tarjeta .......... clamp(16px, 2.2vmin, 22px), peso 500–600, color #6B7280
+  Botones y etiquetas ....... clamp(16px, 2.2vmin, 22px), peso 700
+  Nada de texto menor a 14px.
+
+Forma y superficies
+-------------------
+  Botones principales ....... píldora (border-radius:999px)
+  Tarjetas y paneles ........ radio 24–26px
+  Íconos de sección ......... hexágono (clip-path: polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%))
+                              con un trazo blanco de 1.9px, redondeado
+  Vidrio esmerilado (paneles flotantes):
+    claro:  background rgba(255,255,255,.64); border 1px solid rgba(255,255,255,.95);
+            box-shadow 0 12px 34px rgba(70,80,100,.16), inset 0 1px 0 rgba(255,255,255,.25);
+            backdrop-filter: blur(16px) saturate(140%)
+    oscuro: background rgba(16,18,24,.5); border 1px solid rgba(255,255,255,.18);
+            box-shadow 0 12px 34px rgba(0,0,0,.4)
+  Sombras suaves y difusas; nunca bordes duros negros.
+  Estado seleccionado: fondo del color de acento al 12% de opacidad + franja o borde
+  inferior de 3px del color de acento. Botón activo: relleno coral, texto blanco,
+  sombra 0 8px 18px rgba(254,84,64,.4).
+
+Componentes (cómo se ven y se comportan)
+----------------------------------------
+  - Barra superior: logo Nexus/Brighter a la izquierda, nombre del estudiante a la derecha
+    (hoy "Invitado"). Fondo de vidrio, altura ~72px.
+  - Saludo: "Hola, {nombre}" grande, y una línea de apoyo: "¿Qué quieres hacer hoy?".
+    Tono: cercano, claro, sin diminutivos ni exclamaciones en exceso.
+  - Tarjetas de sesión (Matemática, Lenguaje, Ciencias): grandes, 3 por fila en pantalla
+    ancha; ícono hexagonal con el color de la sesión, título, una línea de descripción.
+    Mínimo 160px de alto.
+  - Tarjetas de herramienta (Pizarra, Biblioteca 3D, Mediateca): más compactas, en una
+    fila aparte con el título "Herramientas". Ícono hexagonal rojo oscuro.
+  - Mascota: el pájaro de origami puede aparecer abajo a la izquierda con un globo de
+    texto blanco (esquina inferior izquierda). Solo ayuda breve ("Toca una sesión para
+    empezar"). Se puede apagar. No debe tapar contenido.
+  - Etiquetas: lo mínimo. Ninguna etiqueta de nivel (primaria/secundaria), ninguna de
+    licencia, ninguna técnica. Una sola etiqueta opcional por tarjeta: "Nuevo" o "Pronto".
+
+Pensado para pantalla táctil grande
+-----------------------------------
+  - Objetivos táctiles de mínimo 64×64px (ideal 72px). Separación mínima entre ellos: 12px.
+  - Todo debe poder hacerse con un dedo; nada que dependa de pasar el cursor (hover).
+  - Respuesta visible al toque: escala a .96 al presionar (:active), 120–200ms.
+  - Sin scroll horizontal. Si hay más tarjetas que espacio, que el scroll sea vertical.
+  - Márgenes de seguridad de 24px en los bordes (los marcos de las pantallas recortan).
+  - Contraste: texto #282828 sobre fondo claro (más de 12:1). Nunca texto blanco sobre
+    el fondo claro sin una superficie de color detrás.
+
+Movimiento
+----------
+  - Transiciones de 200–550 ms con cubic-bezier(.3,.8,.3,1) para paneles y entradas.
+  - Entrada del menú: las tarjetas suben 12px y aparecen en cascada (60ms de diferencia).
+  - Nada parpadea ni rebota sin parar. Respetar prefers-reduced-motion.
+
+Lo que NO debe tener
+--------------------
+  - Neón, fondos azul petróleo oscuros ni colores saturados a pantalla completa
+    (era el estilo del primer prototipo; se reemplaza por esta estética).
+  - Etiquetas o botones de "primaria / secundaria".
+  - Emojis como íconos principales (usar íconos de trazo dentro de hexágonos).
+  - Texto infantil ("¡Hola amiguito!") o corporativo ("Módulo de gestión").
+  - Cargar fuentes, imágenes, scripts o estilos desde internet.
+
+Lo que el código del menú debe respetar para encajar en Nexus
+-------------------------------------------------------------
+[ACTUALIZACIÓN 27-oct-2026] El menú ya está construido y conectado a Nexus (app/menu/ y app/nucleo/pantallas-menu.js).
+Es una pantalla con diseño propio: mientras se ve, los estilos de Nexus se apagan, así que sus clases no chocan con
+las de las demás pantallas. Las sesiones salen del registro (app/nucleo/menu-datos.js). Ver docs/ARQUITECTURA.md,
+sección «Menú, quiz y pantallas con diseño propio». Lo de abajo queda como referencia del contrato original.
+
+La app es JavaScript puro con módulos ES, sin frameworks ni dependencias, y funciona
+solo si se sirve por http (npm run servir → http://localhost:5173), no abriendo el HTML.
+
+  1. El menú ES la pantalla de inicio: archivo app/nucleo/pantallas.js, función
+         export function pantallaInicio(_params, contenedor) { ... }
+     Dibuja dentro de `contenedor` (un div nuevo por cada navegación). Si devuelve una
+     función, se llama al salir de la pantalla.
+  2. Las sesiones y herramientas NO se escriben a mano en el menú: se leen del registro
+         import { listaSesiones, listaModulos } from './registro.js';
+     Cada elemento trae: { id, nombre, descripcion, estado, escena }.
+     Si mañana se agrega una sesión, el menú debe mostrarla sin tocar su código.
+  3. Rutas (navegación por hash):
+         #/sesion/<id>      #/modulo/<id>      #/intro      #/  (inicio)
+     Las tarjetas son enlaces <a href="#/sesion/matematica"> (no botones con JS).
+  4. Alumno actual: import { contexto } from './contexto.js'  →  contexto.perfil.nombre
+  5. Seguridad (meta CSP en app/index.html): NO scripts en línea ni eventos en línea
+     (onclick=...). Solo script-src 'self'. Estilos: archivo .css propio (se permite
+     style="" en línea). Imágenes: del propio sitio, data: o blob:. Sin fuentes externas.
+  6. Estilos: las variables de color van en app/estilos/tema.css (:root). Hoy ahí vive
+     la paleta neón anterior; esta guía la reemplaza. Cuando se migre, las otras
+     pantallas (actividades, pizarra, biblioteca 3D) tomarán estos colores sin cambiar
+     su estructura.
+  7. app/estilos/base.css y modulos.css usan las variables --texto, --suave, --tarjeta,
+     --borde, --acento, --radio, --fuente. Al definir la paleta nueva, conservar esos
+     nombres (con valores nuevos) para no romper el resto de la app.
+  8. Los visores 3D de la Biblioteca (carpeta app/contenido/modelos3d) YA usan esta
+     estética (fondo gris claro, naranja/coral, vidrio, píldoras). Es la referencia
+     visual más cercana a lo que se busca; mirarlos antes de diseñar.
+  9. El menú debe verse bien desde 1366×768 hasta 3840×2160 y también en vertical.
+
+Bloque de variables listo para pegar (tema claro)
+--------------------------------------------------
+:root{
+  --verde:#2CBB92; --coral:#FE5440; --naranja:#FE6D31;
+  --ambar:#F6952D; --rojo:#E72624; --rojo-osc:#C9202E;
+
+  --texto:#282828; --suave:#6B7280; --blanco:#FFFFFF;
+  --fondo: radial-gradient(ellipse at 50% 38%, #F7F8FA 0%, #ECEEF2 52%, #D9DDE3 100%);
+  --vidrio: rgba(255,255,255,.64);
+  --vidrio-borde: rgba(255,255,255,.95);
+  --sombra: 0 12px 34px rgba(70,80,100,.16);
+  --seleccion: rgba(254,84,64,.12);
+
+  --acento: var(--coral);
+  --radio: 24px;
+  --fuente: "Poppins","Nunito","Segoe UI",system-ui,sans-serif;
+}
+
+Criterios para dar el menú por bueno
+------------------------------------
+  [ ] Al verlo, se reconoce la marca Brighter (colores y formas del pájaro) y no parece
+      un videojuego infantil ni un panel de oficina.
+  [ ] Se entiende en 3 segundos qué tocar: 3 sesiones grandes y 3 herramientas.
+  [ ] Ninguna etiqueta de nivel ni de licencia.
+  [ ] Todo se puede tocar con un dedo, objetivos de 64px o más.
+  [ ] Agregar una sesión al registro la muestra sin modificar el menú.
+  [ ] Sin llamadas a internet (pestaña Red del navegador vacía de dominios externos).
+  [ ] Se ve bien a 1366×768 y a 3840×2160.
+  [ ] Con prefers-reduced-motion no hay animaciones de fondo.
+================================================================================
+Brighter Perú S.A.C. · Documento interno de diseño · v1

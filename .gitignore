@@ -4,3 +4,7 @@ node_modules/
 pruebas/capturas/
 modelos-entrada/
 modelos-excluidos/
+instaladores/
+celular/app/src/main/assets/public/
+celular/app/src/main/assets/capacitor.config.json
+celular/app/src/main/assets/capacitor.plugins.json

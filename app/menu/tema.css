@@ -1,0 +1,104 @@
+/* ============================================================
+   BRIGHTER NEXUS · tema.css
+   Variables + fondo + botón central. Lo comparten
+   cargando.html e index.html (por eso el paso de una a otra
+   no se nota: mismo fondo, mismo círculo, misma posición).
+   ============================================================ */
+/* Poppins viene incluida (misma carpeta de fuentes que el quiz): así el menú se ve igual en cualquier equipo. */
+@font-face{font-family:"Poppins";font-weight:500;font-display:swap;src:url("../quiz/fuentes/poppins-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Poppins";font-weight:600;font-display:swap;src:url("../quiz/fuentes/poppins-latin-600-normal.woff2") format("woff2")}
+@font-face{font-family:"Poppins";font-weight:700;font-display:swap;src:url("../quiz/fuentes/poppins-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:"Poppins";font-weight:800;font-display:swap;src:url("../quiz/fuentes/poppins-latin-800-normal.woff2") format("woff2")}
+
+:root{
+  --verde:#2CBB92; --coral:#FE5440; --naranja:#FE6D31;
+  --ambar:#F6952D; --rojo:#E72624; --rojo-osc:#C9202E;
+
+  --texto:#282828; --suave:#6B7280; --blanco:#FFFFFF;
+  --fondo: radial-gradient(ellipse at 50% 38%, #F7F8FA 0%, #ECEEF2 52%, #D9DDE3 100%);
+  --vidrio: rgba(255,255,255,.64);
+  --vidrio-borde: rgba(255,255,255,.95);
+  --sombra: 0 12px 34px rgba(70,80,100,.16);
+  --seleccion: rgba(254,84,64,.12);
+
+  --acento: var(--coral);
+  --radio: 24px;
+  --fuente: "Poppins","Nunito","Segoe UI",system-ui,sans-serif;
+
+  --ease: cubic-bezier(.3,.8,.3,1);
+  /* Tamaño del menú circular: el mayor cuadrado que cabe bajo la barra superior */
+  --s: min(calc(100vw - 48px), calc(100dvh - 128px));
+}
+/* El tamaño del menú se ajusta a múltiplos de 40px: así las 4 piezas (47.5% y 52.5%)
+   caen siempre en píxeles enteros. Con medios píxeles se veía un salto/parpadeo al terminar
+   de aparecer en las piezas que no están en la esquina (Explorar, Jugar y Pizarra). */
+@supports (width:round(down,10px,4px)){
+  :root{--s: round(down, min(calc(100vw - 48px), calc(100dvh - 128px)), 40px)}
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--fondo) fixed;
+  color:var(--texto);
+  font-family:var(--fuente);
+  font-weight:500;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+:focus-visible{outline:3px solid var(--coral);outline-offset:4px}
+
+/* ---------- Modo tutor: el fondo claro pasa a gris azulado oscuro ---------- */
+:root{--papel:#FFFFFF}
+body.tutor{
+  --texto:#EEF2F8; --suave:#AEB8C8; --papel:#323D51;
+  --vidrio:rgba(34,44,62,.58); --vidrio-borde:rgba(255,255,255,.16);
+  --sombra:0 12px 34px rgba(0,0,0,.38);
+}
+.fondo-tutor{
+  position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse at 50% 38%,#4C596F 0%,#3B4659 52%,#2B3445 100%);
+  transition:opacity .7s ease;
+}
+body.tutor .fondo-tutor{opacity:1}
+
+/* ---------- Escena: el cuadrado donde vive el círculo ---------- */
+.pagina{
+  position:relative;z-index:1;
+  min-height:100dvh;
+  padding:104px 24px 24px;           /* 104 = espacio de la barra superior */
+  display:grid;place-items:center;
+}
+.escena{position:relative;width:var(--s);height:var(--s)}
+/* centrado con posiciones enteras (sin .5 px) aunque la pantalla tenga medidas impares */
+@supports (width:round(down,10px,4px)){
+  .pagina{display:block;place-items:normal;padding:0}
+  .escena{
+    margin-left:round(down,calc((100vw - var(--s)) / 2),1px);
+    margin-top:calc(104px + round(down,calc((100dvh - 128px - var(--s)) / 2),1px));
+  }
+}
+
+/* ---------- Botón central (logo) ---------- */
+.centro{
+  position:absolute;left:30%;top:30%;width:40%;height:40%;
+  z-index:3;border-radius:50%;
+  display:grid;place-items:center;
+  background:#fff;
+  box-shadow:0 0 0 calc(var(--s)*.016) rgba(255,255,255,.7), 0 14px 40px rgba(70,80,100,.22);
+  transition:transform .15s var(--ease);
+}
+.centro img{width:72%;height:auto;display:block;pointer-events:none;transform:translate(-3%,2%)}
+a.centro:active{transform:scale(.96)}
+
+/* ---------- Ícono hexagonal ---------- */
+.hex{
+  width:var(--hex,72px);aspect-ratio:1;flex:none;
+  display:grid;place-items:center;
+  background:var(--c,var(--coral));
+  clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);
+}
+.hex svg{width:52%;height:52%;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
