@@ -1,7 +1,7 @@
 {
   "name": "brighter-nexus",
   "productName": "Brighter Nexus",
-  "version": "0.5.1",
+  "version": "0.7.1",
   "description": "Plataforma educativa para pantallas interactivas BTOUCH: pizarra, kit de actividades y biblioteca 3D",
   "private": true,
   "type": "module",

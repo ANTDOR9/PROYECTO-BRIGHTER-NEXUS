@@ -15,6 +15,7 @@ Una sola app para el profesor con: **pizarra digital**, **kit de actividades** (
 | Motor de puntaje | Común a todas las actividades, con progreso por juego |
 | Multiplicación en columnas | Prototipo: plantilla `columnas` (paso a paso, color naranja) |
 | Tablas de multiplicar | Prototipo (antes "Multiplicación") |
+| App híbrida | Menú Android en Kotlin + web: ver `docs/KOTLIN-HIBRIDO.md` |
 | Empaquetado | APK (Capacitor) y Windows (Electron): ver `docs/EMPAQUETADO.md` |
 | Divisiones | Prototipo: el juego de nasa-cell completo, con su estética, dentro de un marco (`app/sesiones/matematica/divisiones/`) |
 

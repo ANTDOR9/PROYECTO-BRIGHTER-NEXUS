@@ -44,6 +44,15 @@ async function crearVentana() {
   // La ventana solo muestra Nexus: no abre ventanas nuevas ni navega a otras páginas
   ventana.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   ventana.webContents.on('will-navigate', (e, url) => { if (!url.startsWith(`http://127.0.0.1:${puerto}/`)) e.preventDefault(); });
+  // Escala de diseño: la web está pensada para una pantalla de 1080 px en su lado corto. En un panel 4K (o en una ventana
+  // más pequeña) se amplía o reduce todo por igual, así las proporciones de iconos y textos son siempre las del diseño.
+  const ajustarEscala = () => {
+    if (!ventana || ventana.isDestroyed()) return;
+    const [ancho, alto] = ventana.getContentSize();
+    ventana.webContents.setZoomFactor(Math.min(4, Math.max(0.4, Math.min(ancho, alto) / 1080)));
+  };
+  ventana.webContents.on('did-finish-load', ajustarEscala);
+  ventana.on('resize', ajustarEscala);
   ventana.webContents.session.setPermissionRequestHandler((c, p, responder) => responder(false));
 }
 

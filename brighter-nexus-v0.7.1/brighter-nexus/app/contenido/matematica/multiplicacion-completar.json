@@ -1,0 +1,17 @@
+{
+  "id": "mat-prim-multiplicacion-01",
+  "nivel": "primaria",
+  "curso": "matematica",
+  "tema": "multiplicacion",
+  "modalidad": "actividad",
+  "plantilla": "completar",
+  "titulo": "Matemática · Multiplicación",
+  "ejercicios": [
+    { "instruccion": "Toca el número que falta.", "texto": "3 × {} = 12", "huecos": ["4"], "banco": ["2", "3", "4", "5"], "explicacion": "3 × 4 = 12: tres grupos de 4 son 12." },
+    { "instruccion": "Toca el número que falta.", "texto": "{} × 5 = 30", "huecos": ["6"], "banco": ["4", "5", "6", "7"], "explicacion": "6 × 5 = 30." },
+    { "instruccion": "¿Cuánto es?", "texto": "7 × 8 = {}", "huecos": ["56"], "banco": ["54", "56", "63", "48"], "explicacion": "7 × 8 = 56." },
+    { "instruccion": "Toca el número que falta.", "texto": "9 × {} = 81", "huecos": ["9"], "banco": ["7", "8", "9", "10"], "explicacion": "9 × 9 = 81." },
+    { "instruccion": "En un huerto hay 4 filas con 6 plantas cada una. ¿Cuántas plantas hay?", "texto": "4 × 6 = {}", "huecos": ["24"], "banco": ["20", "24", "28", "18"], "explicacion": "4 filas de 6 plantas: 4 × 6 = 24." },
+    { "instruccion": "Completa la operación con dos números.", "texto": "6 × {} = {}", "huecos": ["3", "18"], "banco": ["3", "18", "9", "12"], "explicacion": "6 × 3 = 18." }
+  ]
+}

@@ -5,6 +5,7 @@
 import { asegurarJuego, registrarDia } from './perfil.js';
 import { contexto } from './contexto.js';
 import { guardar } from './almacen.js';
+import { avisarPartida } from './nativo.js';
 
 const SESION_DE_TEMA = { default: 'ciencias' };   // por ahora el quiz es solo de Ciencias; luego cada tema dirá su sesión
 
@@ -26,5 +27,5 @@ let conectado = false;
 export function conectarQuiz() {
   if (conectado) return;
   conectado = true;
-  addEventListener('nexus:partida', e => registrarPartidaEnPerfil(e.detail));
+  addEventListener('nexus:partida', e => { registrarPartidaEnPerfil(e.detail); avisarPartida(e.detail); });
 }

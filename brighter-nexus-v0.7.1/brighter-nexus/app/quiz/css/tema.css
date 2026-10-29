@@ -1,0 +1,222 @@
+/* Brighter Nexus · tema común (colores, tipografía, vidrio, botones, modo tutor)
+   Conservar los nombres de las variables: otras pantallas de Nexus las usan. */
+
+@font-face { font-family: "Poppins"; font-weight: 500; font-display: swap; src: url("../fuentes/poppins-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Poppins"; font-weight: 600; font-display: swap; src: url("../fuentes/poppins-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Poppins"; font-weight: 700; font-display: swap; src: url("../fuentes/poppins-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Poppins"; font-weight: 800; font-display: swap; src: url("../fuentes/poppins-latin-800-normal.woff2") format("woff2"); }
+
+:root {
+  --texto: #282828;
+  --suave: #6b7280;
+  --coral: #fe5440;
+  --ambar: #ffb43a;
+  --verde: #1fa39a;      /* verde azulado */
+  --naranja: #ff8a3d;
+  --rojo: #e5484d;
+  --rojo-osc: #b3262b;
+  --acento: var(--coral);
+
+  --vidrio: rgba(255, 255, 255, 0.5);
+  --vidrio-fuerte: rgba(255, 255, 255, 0.55);
+  --vidrio-borde: rgba(255, 255, 255, 0.55);
+  --sombra: 0 8px 30px rgba(40, 40, 40, 0.06);
+  --sombra-coral: 0 8px 18px rgba(254, 84, 64, 0.4);
+
+  --fuente: "Poppins", "Nunito", "Segoe UI", system-ui, sans-serif;
+  --ease: cubic-bezier(0.3, 0.8, 0.3, 1);
+
+  /* Todo escala con vmin: de 1366x768 a 3840x2160. */
+  --tactil: clamp(64px, 6.4vmin, 128px);
+  --barra: clamp(104px, 9.6vmin, 208px);
+  --margen: clamp(24px, 2.2vmin, 48px);
+  --espacio: clamp(10px, 1.4vmin, 30px);
+  --radio: clamp(22px, 2.4vmin, 52px);
+  --radio-juego: clamp(18px, 1.85vmin, 40px);
+
+  --t-titulo: clamp(28px, 4.1vmin, 88px);
+  --t-apoyo: clamp(16px, 2.2vmin, 48px);
+  --t-texto: clamp(16px, 2.2vmin, 48px);
+  --t-num: clamp(28px, 4vmin, 86px);
+  --t-chico: clamp(14px, 1.7vmin, 36px);
+
+  --fondo: radial-gradient(ellipse at 50% 38%, #ffffff 0%, #f3f6fa 55%, #e6ecf3 100%);
+  --fondo-tutor: radial-gradient(ellipse at 50% 38%, #4c596f 0%, #3b4659 52%, #2b3445 100%);
+}
+
+body.tutor {
+  --texto: #eef2f8;
+  --suave: #aab4c6;
+  --vidrio: rgba(28, 36, 52, 0.45);
+  --vidrio-fuerte: rgba(255, 255, 255, 0.1);
+  --vidrio-borde: rgba(255, 255, 255, 0.16);
+  --sombra: 0 10px 40px rgba(8, 12, 22, 0.35);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body { margin: 0; height: 100%; }
+
+body {
+  font-family: var(--fuente);
+  color: var(--texto);
+  background: #f3f6fa;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* El degradado oscuro se funde encima del claro (un degradado no se puede animar). */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+}
+body::before { background: var(--fondo); }
+body::after { background: var(--fondo-tutor); opacity: 0; transition: opacity 700ms ease; }
+body.tutor::after { opacity: 1; }
+
+button, a { font: inherit; color: inherit; }
+button { cursor: pointer; border: 0; background: none; padding: 0; }
+
+:focus-visible { outline: 3px solid var(--verde); outline-offset: 3px; }
+
+.solo-lector {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* ---- Iconos ---------------------------------------------------------- */
+.ico {
+  width: 1em; height: 1em; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 1.9;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.ico.lleno { fill: currentColor; stroke: none; }
+
+/* Hexágono con ícono (pasos, selector de tema) */
+.hex {
+  --c: var(--verde);
+  width: var(--tactil); height: calc(var(--tactil) * 0.92); flex: none;
+  display: grid; place-items: center;
+  background: var(--c); color: #fff;
+  font-size: calc(var(--tactil) * 0.46);
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+.hex.coral { --c: var(--coral); }
+.hex.ambar { --c: var(--ambar); }
+.hex.verde { --c: var(--verde); }
+
+/* ---- Vidrio esmerilado ------------------------------------------------ */
+.vidrio {
+  background: var(--vidrio);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  backdrop-filter: blur(18px) saturate(1.2);
+  border: 1px solid var(--vidrio-borde);
+  box-shadow: var(--sombra);
+  transition: background 700ms ease, border-color 700ms ease;
+}
+
+/* ---- Botones ---------------------------------------------------------- */
+.btn {
+  min-height: var(--tactil);
+  padding: 0 calc(var(--tactil) * 0.5);
+  border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: calc(var(--tactil) * 0.16);
+  font-size: var(--t-texto); font-weight: 700; line-height: 1.1;
+  color: var(--texto);
+  background: var(--vidrio-fuerte);
+  border: 1px solid var(--vidrio-borde);
+  box-shadow: 0 3px 12px rgba(40, 40, 40, 0.05);
+  text-decoration: none;
+  transition: transform 160ms var(--ease), box-shadow 160ms var(--ease), opacity 200ms ease, background 200ms ease;
+}
+.btn:active { transform: scale(0.96); }
+.btn .ico { font-size: 1.25em; }
+.btn[disabled], .btn[aria-disabled="true"] { opacity: 0.45; cursor: default; pointer-events: none; }
+
+.btn-primario {
+  background: var(--coral); color: #fff; border-color: transparent;
+  box-shadow: var(--sombra-coral);
+}
+.btn-circ { width: var(--tactil); padding: 0; flex: none; }
+.btn-circ .ico { font-size: calc(var(--tactil) * 0.42); }
+
+/* ---- Barra superior --------------------------------------------------- */
+.barra {
+  position: fixed; z-index: 20;
+  top: var(--margen); left: var(--margen); right: var(--margen);
+  display: flex; justify-content: space-between; align-items: flex-start;
+  pointer-events: none;
+}
+.barra > * { pointer-events: auto; }
+
+.btn-inicio {
+  position: relative; width: var(--tactil); height: var(--tactil); padding: 0;
+  border-radius: 50%; background: var(--coral); color: #fff;
+  display: grid; place-items: center; text-decoration: none;
+  box-shadow: var(--sombra-coral);
+  transition: transform 160ms var(--ease);
+}
+.btn-inicio:active { transform: scale(0.94); }
+.btn-inicio .logo {
+  width: 76%; height: 76%;
+  border-radius: 50%; background: #fff; display: grid; place-items: center;
+  font-size: calc(var(--tactil) * 0.5);
+}
+
+.usuario { display: flex; align-items: center; gap: var(--espacio); }
+.modos {
+  display: flex; gap: 8px; padding: 6px; border-radius: 999px;
+  max-width: 0; opacity: 0; overflow: hidden; padding-inline: 0; border-width: 0;
+  transition: max-width 400ms var(--ease), opacity 250ms ease, padding 400ms var(--ease);
+}
+.usuario.abierto .modos {
+  max-width: calc(var(--tactil) * 3.6); opacity: 1; padding-inline: 6px; border-width: 1px;
+}
+.modos .sep { width: 2px; align-self: stretch; margin: 10px 2px; background: rgba(107, 114, 128, 0.28); border-radius: 2px; flex: none; }
+.modos .btn-circ { width: calc(var(--tactil) - 12px); min-height: calc(var(--tactil) - 12px); box-shadow: none; background: transparent; border-color: transparent; }
+.modos .btn-circ[aria-pressed="true"] { background: var(--coral); color: #fff; }
+
+.btn-usuario {
+  width: var(--tactil); height: var(--tactil); border-radius: 50%;
+  position: relative; display: grid; place-items: center;
+  background: var(--vidrio-fuerte);
+  font-size: calc(var(--tactil) * 0.42);
+  transition: transform 160ms var(--ease);
+}
+.btn-usuario:active { transform: scale(0.96); }
+.btn-usuario::before {
+  content: ""; position: absolute; inset: -4px; border-radius: 50%; z-index: -1;
+  background: conic-gradient(var(--coral), var(--ambar), var(--verde), var(--coral));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  animation: giro 9s linear infinite;
+}
+@keyframes giro { to { transform: rotate(1turn); } }
+
+/* ---- Fondo: triángulos del logo en los bordes ------------------------- */
+.fondo { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.tri { position: absolute; opacity: 0.9; animation: flotar 26s ease-in-out infinite alternate; }
+.tri.t1 { width: 30vmin; height: 30vmin; left: -9vmin; bottom: -8vmin; background: var(--coral); clip-path: polygon(0 100%, 100% 100%, 20% 0); }
+.tri.t2 { width: 24vmin; height: 24vmin; right: -7vmin; top: 18vmin; background: var(--ambar); clip-path: polygon(100% 0, 100% 100%, 0 60%); animation-delay: -9s; }
+.tri.t3 { width: 26vmin; height: 26vmin; right: 12vmin; bottom: -12vmin; background: var(--verde); clip-path: polygon(0 100%, 100% 100%, 60% 0); animation-delay: -16s; }
+@keyframes flotar { to { transform: translate(1.6vmin, -2vmin) rotate(3deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .tri, .btn-usuario::before { animation: none; }
+  *, *::before, *::after { transition-duration: 1ms !important; }
+}
+
+/* ---- Barras de desplazamiento suaves ---------------------------------- */
+* { scrollbar-width: thin; scrollbar-color: rgba(107, 114, 128, 0.32) transparent; }
+body.tutor * { scrollbar-color: rgba(255, 255, 255, 0.22) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(107, 114, 128, 0.32); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(107, 114, 128, 0.5); background-clip: content-box; }
+body.tutor ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); background-clip: content-box; }
+body.tutor ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.34); background-clip: content-box; }

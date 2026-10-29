@@ -1,0 +1,7 @@
+{
+  "appId": "pe.brighter.nexus",
+  "appName": "Brighter Nexus",
+  "webDir": "app",
+  "android": { "path": "celular" },
+  "server": { "androidScheme": "https" }
+}

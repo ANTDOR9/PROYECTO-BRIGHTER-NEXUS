@@ -1,0 +1,10 @@
+{
+  "_ayuda": "Configura la intro de inicio. tipo: 'reservado' (espacio vacío con el logo), 'video' (archivo mp4/webm) o 'imagen'. Los archivos van en app/contenido/intro/ y se escriben aquí solo con el nombre.",
+  "tipo": "reservado",
+  "archivo": null,
+  "duracionSegundos": 6,
+  "saltable": true,
+  "silenciado": true,
+  "titulo": "Brighter Nexus",
+  "subtitulo": "Aprender conectando ideas"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "cien-prim-vida-celula-01",
+  "nivel": "primaria",
+  "curso": "ciencias",
+  "dimension": "vida",
+  "tema": "la célula",
+  "modalidad": "actividad",
+  "plantilla": "elegir",
+  "titulo": "Ciencias · Vida · La célula",
+  "ejercicios": [
+    { "pregunta": "¿Qué parte de la célula guarda la información que dirige su funcionamiento?", "opciones": ["El núcleo", "La membrana", "El citoplasma", "La pared"], "correcta": 0, "explicacion": "El núcleo guarda la información que dirige a toda la célula." },
+    { "pregunta": "¿Qué parte rodea la célula y controla lo que entra y sale?", "opciones": ["El núcleo", "La membrana", "Los cromosomas", "El agua"], "correcta": 1, "explicacion": "La membrana protege la célula y deja pasar solo lo necesario." },
+    { "pregunta": "Las células son tan pequeñas que no se ven a simple vista. ¿Qué usamos para verlas?", "opciones": ["Una regla", "Un termómetro", "Un microscopio", "Una balanza"], "correcta": 2, "explicacion": "El microscopio nos permite ver cosas muy pequeñas, como las células." },
+    { "pregunta": "¿Cómo se llaman los seres vivos formados por una sola célula?", "opciones": ["Pluricelulares", "Minerales", "Fósiles", "Unicelulares"], "correcta": 3, "explicacion": "Los unicelulares, como las bacterias, están formados por una sola célula." },
+    { "pregunta": "Las células de las plantas tienen algo que las de los animales no tienen. ¿Qué es?", "opciones": ["Núcleo", "Pared celular", "Membrana", "Citoplasma"], "correcta": 1, "explicacion": "La pared celular da forma y firmeza a las células de las plantas." }
+  ]
+}

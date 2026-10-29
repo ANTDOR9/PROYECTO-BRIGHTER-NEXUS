@@ -1,5 +1,6 @@
 // Pantallas con diseño propio y su conexión con Nexus: carga, menú, quiz y "nueva clase" de la pizarra.
 // Los estilos de cada una se activan solo mientras están a la vista (ver estilos-propios.js).
+import { hayNativo, cerrarNativo } from './nativo.js';
 import { entrarPantallaPropia } from './estilos-propios.js';
 import { fijarHash, ir } from './enrutador.js';
 import { contexto } from './contexto.js';
@@ -22,6 +23,8 @@ export async function pantallaEntrada(params, cont) {
 
 // ---------- menú (#/ y #/seccion/:id) ----------
 export async function pantallaMenu({ id }, cont) {
+  // Dentro de la app de Android el menú es el nativo (Kotlin): aquí solo se vuelve a él
+  if (hayNativo() && cerrarNativo()) return;
   const salir = await entrarPantallaPropia('menu');
   const secciones = seccionesDelMenu();
   let saludar = false;

@@ -1,0 +1,494 @@
+{
+  "version": 1,
+  "generado": "2026-10-26T14:36:36.177Z",
+  "modo": "desarrollo",
+  "modelos": [
+    {
+      "id": "anatomia-de-una-flor",
+      "titulo": "Anatomía de una flor",
+      "subtitulo": "Ciencias · Explora · Descubre · Aprende",
+      "curso": "ciencias",
+      "nivel": [
+        "primaria",
+        "secundaria"
+      ],
+      "dimension": "vida",
+      "orden": 100,
+      "partes": [
+        "Pétalos",
+        "Sépalos",
+        "Estambres",
+        "Pistilo",
+        "Tallo",
+        "Receptáculo"
+      ],
+      "paginasInfo": 13,
+      "credito": {
+        "titulo": "Anatomy of a Flower",
+        "autor": "arloopa",
+        "autorUrl": "https://sketchfab.com/arloopa",
+        "fuente": "https://sketchfab.com/3d-models/anatomy-of-a-flower-4ce0afd091d742e286a0de156e183d95",
+        "cambios": "Textura reducida para que cargue rápido sin internet, fondo gris nuevo y etiquetas en español.",
+        "atribucion": "This work is based on \"Anatomy of a Flower\" (https://sketchfab.com/3d-models/anatomy-of-a-flower-4ce0afd091d742e286a0de156e183d95) by arloopa (https://sketchfab.com/arloopa) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)"
+      },
+      "licencia": {
+        "codigo": "CC BY 4.0",
+        "comercial": true,
+        "modificable": true,
+        "compartirIgual": false,
+        "estado": "ok",
+        "motivo": "",
+        "texto": "CC BY 4.0 (Creative Commons Atribución 4.0)"
+      },
+      "archivos": {
+        "visor": "anatomia-de-una-flor/index.html",
+        "glb": "anatomia-de-una-flor/modelo.glb",
+        "glbLigero": "anatomia-de-una-flor/modelo-ligero.glb",
+        "miniatura": "anatomia-de-una-flor/miniatura.webp"
+      },
+      "pesoBytes": {
+        "original": 941780,
+        "normal": 263160,
+        "ligero": 119028
+      },
+      "optimizado": true,
+      "fuenteSha": "6dd8e10ba11de52e455c9af29dad6db6010f8d793d02f181318ade4c0ca5f919",
+      "glbSha": "b5757114fff3415f5ba2fdaac5539121115a6d3cede4674fde9099f47a6285a1",
+      "origen": "anatomia_de_una_flor.html"
+    },
+    {
+      "id": "corazon-humano",
+      "titulo": "El corazón humano",
+      "subtitulo": "Ciencias · Explora · Descubre · Aprende",
+      "curso": "ciencias",
+      "nivel": [
+        "primaria",
+        "secundaria"
+      ],
+      "dimension": "vida",
+      "orden": 100,
+      "partes": [],
+      "paginasInfo": 4,
+      "credito": {
+        "titulo": "corazón humano",
+        "autor": "alexanderperezamaya8.74",
+        "autorUrl": "https://sketchfab.com/alexanderperezamaya8.74",
+        "fuente": "https://sketchfab.com/3d-models/corazon-humano-8ddf25cd62f74b40bfbbae29b4df9963",
+        "cambios": "Modelo simplificado (de 1,5 millones a 75 mil triángulos) y texturas reducidas para que cargue rápido sin internet; fondo gris nuevo.",
+        "atribucion": "This work is based on \"corazón humano\" (https://sketchfab.com/3d-models/corazon-humano-8ddf25cd62f74b40bfbbae29b4df9963) by alexanderperezamaya8.74 (https://sketchfab.com/alexanderperezamaya8.74) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)"
+      },
+      "licencia": {
+        "codigo": "CC BY 4.0",
+        "comercial": true,
+        "modificable": true,
+        "compartirIgual": false,
+        "estado": "ok",
+        "motivo": "",
+        "texto": "CC BY 4.0 (Creative Commons Atribución 4.0)"
+      },
+      "archivos": {
+        "visor": "corazon-humano/index.html",
+        "glb": "corazon-humano/modelo.glb",
+        "glbLigero": "corazon-humano/modelo-ligero.glb",
+        "miniatura": "corazon-humano/miniatura.webp"
+      },
+      "pesoBytes": {
+        "original": 3417816,
+        "normal": 1044724,
+        "ligero": 436348
+      },
+      "optimizado": true,
+      "fuenteSha": "4e53e2681ce5fedcd18caa7d5960fec6836af48e88eca684ffde812540632f16",
+      "glbSha": "0b2bd6d99f41fb73e2f5b65332ab272841a1b526f2152ddaf9639fdb2abfc884",
+      "origen": "corazon_humano.html"
+    },
+    {
+      "id": "lisosomas-utpl",
+      "titulo": "El lisosoma",
+      "subtitulo": "Ciencias · Explora · Descubre · Aprende",
+      "curso": "ciencias",
+      "nivel": [
+        "primaria",
+        "secundaria"
+      ],
+      "dimension": "vida",
+      "orden": 100,
+      "partes": [
+        "Membrana del lisosoma",
+        "Enzimas digestivas",
+        "Proteínas de membrana"
+      ],
+      "paginasInfo": 4,
+      "credito": {
+        "titulo": "Lisosomas",
+        "autor": "3D_UTPL",
+        "autorUrl": "https://sketchfab.com/3D_UTPL",
+        "fuente": "https://sketchfab.com/3d-models/lisosomas-8fafcf0b41f14bbe8409ef008e2ea7c6",
+        "cambios": "Modelo reunido en un solo archivo para que cargue sin internet; textos en español y fondo gris nuevo.",
+        "atribucion": "This work is based on \"Lisosomas\" (https://sketchfab.com/3d-models/lisosomas-8fafcf0b41f14bbe8409ef008e2ea7c6) by 3D_UTPL (https://sketchfab.com/3D_UTPL) licensed under CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)"
+      },
+      "licencia": {
+        "codigo": "CC BY-NC-SA 4.0",
+        "comercial": false,
+        "modificable": true,
+        "compartirIgual": true,
+        "estado": "excluir",
+        "motivo": "Uso no comercial: no puede ir en una oferta ni en un producto que se vende.",
+        "texto": "CC BY-NC-SA 4.0 (Atribución-NoComercial-CompartirIgual 4.0). Solo para uso no comercial; las versiones modificadas deben mantener esta misma licencia."
+      },
+      "archivos": {
+        "visor": "lisosomas-utpl/index.html",
+        "glb": "lisosomas-utpl/modelo.glb",
+        "glbLigero": "lisosomas-utpl/modelo-ligero.glb",
+        "miniatura": "lisosomas-utpl/miniatura.webp"
+      },
+      "pesoBytes": {
+        "original": 1019052,
+        "normal": 432320,
+        "ligero": 320524
+      },
+      "optimizado": true,
+      "fuenteSha": "afce07226a7546bd8c1edd048d2fd815d85c2aa5039b1b3c1e71793c35b18779",
+      "glbSha": "0d4aee2068e6d6018c0377dc0dcf050753b1fe536987fc94ebe3a62dbcd6d4ff",
+      "origen": "lisosomas_utpl.html"
+    },
+    {
+      "id": "celula-animal",
+      "titulo": "La célula animal",
+      "subtitulo": "Ciencias · Explora · Descubre · Aprende",
+      "curso": "ciencias",
+      "nivel": [
+        "primaria",
+        "secundaria"
+      ],
+      "dimension": "vida",
+      "orden": 100,
+      "partes": [
+        "Núcleo",
+        "Mitocondrias",
+        "Retículo rugoso",
+        "Retículo liso",
+        "Aparato de Golgi",
+        "Ribosomas",
+        "Citoesqueleto",
+        "Centriolos",
+        "Citoplasma",
+        "Membrana celular"
+      ],
+      "paginasInfo": 12,
+      "credito": {
+        "titulo": "Celula",
+        "autor": "k10tra",
+        "autorUrl": "https://sketchfab.com/k10tra",
+        "fuente": "https://sketchfab.com/3d-models/celula-23c9bccc33cb4d2f8ec3a0903262bf29",
+        "cambios": "Modelo simplificado (de 808 mil a 126 mil triángulos) para que cargue rápido sin internet; reorientado y fondo gris nuevo.",
+        "atribucion": "This work is based on \"Celula\" (https://sketchfab.com/3d-models/celula-23c9bccc33cb4d2f8ec3a0903262bf29) by k10tra (https://sketchfab.com/k10tra) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)"
+      },
+      "licencia": {
+        "codigo": "CC BY 4.0",
+        "comercial": true,
+        "modificable": true,
+        "compartirIgual": false,
+        "estado": "ok",
+        "motivo": "",
+        "texto": "CC BY 4.0 (Creative Commons Atribución 4.0)"
+      },
+      "archivos": {
+        "visor": "celula-animal/index.html",
+        "glb": "celula-animal/modelo.glb",
+        "glbLigero": "celula-animal/modelo-ligero.glb",
+        "miniatura": "celula-animal/miniatura.webp"
+      },
+      "pesoBytes": {
+        "original": 3152012,
+        "normal": 1027320,
+        "ligero": 667112
+      },
+      "optimizado": true,
+      "fuenteSha": "833603d2672da83d25baf4a4bf220c17a3c92164f01f4d4cbed3c595027aa3b4",
+      "glbSha": "1d5fc784bb1ff9961f59e502fb793a4c9120b316d499c7d8a6fae4ef564fc40d",
+      "origen": "celula_animal.html"
+    },
+    {
+      "id": "celula-animal-utpl",
+      "titulo": "La célula animal",
+      "subtitulo": "Ciencias · Explora · Descubre · Aprende",
+      "curso": "ciencias",
+      "nivel": [
+        "primaria",
+        "secundaria"
+      ],
+      "dimension": "vida",
+      "orden": 100,
+      "partes": [
+        "Núcleo",
+        "Retículo rugoso",
+        "Aparato de Golgi",
+        "Mitocondrias",
+        "Ribosomas",
+        "Lisosomas",
+        "Peroxisomas",
+        "Vacuola",
+        "Vesículas",
+        "Centriolos",
+        "Citoesqueleto",
+        "Citoplasma",
+        "Membrana celular"
+      ],
+      "paginasInfo": 15,
+      "credito": {
+        "titulo": "Célula animal",
+        "autor": "3D_UTPL",
+        "autorUrl": "https://sketchfab.com/3D_UTPL",
+        "fuente": "https://sketchfab.com/3d-models/celula-animal-dda679e506ad4b65b6b7122d007802f4",
+        "cambios": "Modelo reunido en un solo archivo para que cargue sin internet; textos en español y fondo gris nuevo.",
+        "atribucion": "This work is based on \"Célula animal\" (https://sketchfab.com/3d-models/celula-animal-dda679e506ad4b65b6b7122d007802f4) by 3D_UTPL (https://sketchfab.com/3D_UTPL) licensed under CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)"
+      },
+      "licencia": {
+        "codigo": "CC BY-NC-SA 4.0",
+        "comercial": false,
+        "modificable": true,
+        "compartirIgual": true,
+        "estado": "excluir",
+        "motivo": "Uso no comercial: no puede ir en una oferta ni en un producto que se vende.",
+        "texto": "CC BY-NC-SA 4.0 (Atribución-NoComercial-CompartirIgual 4.0). Solo para uso no comercial; las versiones modificadas deben mantener esta misma licencia."
+      },
+      "archivos": {
+        "visor": "celula-animal-utpl/index.html",
+        "glb": "celula-animal-utpl/modelo.glb",
+        "glbLigero": "celula-animal-utpl/modelo-ligero.glb",
+        "miniatura": "celula-animal-utpl/miniatura.webp"
+      },
+      "pesoBytes": {
+        "original": 7245932,
+        "normal": 1698356,
+        "ligero": 1588056
+      },
+      "optimizado": true,
+      "fuenteSha": "a37d5220c36c1cd4a78d39828bf20e88c1b08897e8a61a49b4ca703df1124edc",
+      "glbSha": "f0e9a2a8fe4fb8848872e31c336ae0061503548f34b90d71cd7d9d47e4732a40",
+      "origen": "celula_animal_utpl.html"
+    },
+    {
+      "id": "celula-eucariota-eve3d",
+      "titulo": "La célula animal",
+      "subtitulo": "Ciencias · Explora · Descubre · Aprende",
+      "curso": "ciencias",
+      "nivel": [
+        "primaria",
+        "secundaria"
+      ],
+      "dimension": "vida",
+      "orden": 100,
+      "partes": [
+        "Núcleo",
+        "Retículo rugoso",
+        "Retículo liso",
+        "Aparato de Golgi",
+        "Mitocondrias",
+        "Ribosomas",
+        "Lisosomas",
+        "Centriolos",
+        "Citoplasma",
+        "Membrana celular"
+      ],
+      "paginasInfo": 12,
+      "credito": {
+        "titulo": "EVE3D Célula Eucariota Animal",
+        "autor": "EVE3D UNAM",
+        "autorUrl": "https://sketchfab.com/eve3d_unam",
+        "fuente": "https://sketchfab.com/3d-models/eve3d-celula-eucariota-animal-fb3311da5c9a4572bda870f6d356d83a",
+        "cambios": "Modelo simplificado (de 659 mil a 169 mil triángulos) y texturas reducidas para que cargue sin internet; reorientado, textos en español y fondo gris nuevo.",
+        "atribucion": "This work is based on \"EVE3D Célula Eucariota Animal\" (https://sketchfab.com/3d-models/eve3d-celula-eucariota-animal-fb3311da5c9a4572bda870f6d356d83a) by EVE3D UNAM (https://sketchfab.com/eve3d_unam) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)"
+      },
+      "licencia": {
+        "codigo": "CC BY-NC 4.0",
+        "comercial": false,
+        "modificable": true,
+        "compartirIgual": false,
+        "estado": "excluir",
+        "motivo": "Uso no comercial: no puede ir en una oferta ni en un producto que se vende.",
+        "texto": "CC BY-NC 4.0 (Atribución-NoComercial 4.0). Solo para uso no comercial."
+      },
+      "archivos": {
+        "visor": "celula-eucariota-eve3d/index.html",
+        "glb": "celula-eucariota-eve3d/modelo.glb",
+        "glbLigero": "celula-eucariota-eve3d/modelo-ligero.glb",
+        "miniatura": "celula-eucariota-eve3d/miniatura.webp"
+      },
+      "pesoBytes": {
+        "original": 5162040,
+        "normal": 1303480,
+        "ligero": 939856
+      },
+      "optimizado": true,
+      "fuenteSha": "a7e944eb113834a24e38dc0c27d61bf894db52320cf73076173e7a733769f754",
+      "glbSha": "0a091feaa2d69c031704d341eb6bf68e08b77b5417093b5546a4b2b101898ece",
+      "origen": "celula_eucariota_eve3d.html"
+    },
+    {
+      "id": "celula-vegetal-pascon",
+      "titulo": "La célula vegetal",
+      "subtitulo": "Ciencias · Explora · Descubre · Aprende",
+      "curso": "ciencias",
+      "nivel": [
+        "primaria",
+        "secundaria"
+      ],
+      "dimension": "vida",
+      "orden": 100,
+      "partes": [
+        "Núcleo",
+        "Vacuola",
+        "Cloroplasto",
+        "Mitocondria",
+        "Aparato de Golgi",
+        "Retículo endoplasmático",
+        "Vesículas",
+        "Lisosoma",
+        "Citoplasma",
+        "Membrana celular"
+      ],
+      "paginasInfo": 12,
+      "credito": {
+        "titulo": "Célula Vegetal",
+        "autor": "Bruno Pascon",
+        "autorUrl": "https://sketchfab.com/leser.bot",
+        "fuente": "https://sketchfab.com/3d-models/celula-vegetal-a81f927957964b1fb8cbe6bf2c6eb00c",
+        "cambios": "Modelo simplificado (de 3.6 millones a 161 mil triángulos) para que cargue sin internet; textos en español y fondo gris nuevo.",
+        "atribucion": "This work is based on \"Célula Vegetal\" (https://sketchfab.com/3d-models/celula-vegetal-a81f927957964b1fb8cbe6bf2c6eb00c) by Bruno Pascon (https://sketchfab.com/leser.bot) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)"
+      },
+      "licencia": {
+        "codigo": "CC BY 4.0",
+        "comercial": true,
+        "modificable": true,
+        "compartirIgual": false,
+        "estado": "ok",
+        "motivo": "",
+        "texto": "CC BY 4.0 (Creative Commons Atribución 4.0)"
+      },
+      "archivos": {
+        "visor": "celula-vegetal-pascon/index.html",
+        "glb": "celula-vegetal-pascon/modelo.glb",
+        "glbLigero": "celula-vegetal-pascon/modelo-ligero.glb",
+        "miniatura": "celula-vegetal-pascon/miniatura.webp"
+      },
+      "pesoBytes": {
+        "original": 5338480,
+        "normal": 603544,
+        "ligero": 333004
+      },
+      "optimizado": true,
+      "fuenteSha": "cadefa1a929b836438aad93c70636351ec9af87e35276363088540c58aebf720",
+      "glbSha": "befc10dd84377838b808e7623f40d5f3a6dbcba2b9ab5d9ca6248afc831c0465",
+      "origen": "celula_vegetal_pascon.html"
+    },
+    {
+      "id": "celula-vegetal-usic",
+      "titulo": "La célula vegetal",
+      "subtitulo": "Ciencias · Explora · Descubre · Aprende",
+      "curso": "ciencias",
+      "nivel": [
+        "primaria",
+        "secundaria"
+      ],
+      "dimension": "vida",
+      "orden": 100,
+      "partes": [
+        "Núcleo",
+        "Cloroplasto",
+        "Vacuola",
+        "Retículo endoplasmático",
+        "Aparato de Golgi",
+        "Mitocondria",
+        "Pared celular",
+        "Citoplasma"
+      ],
+      "paginasInfo": 12,
+      "credito": {
+        "titulo": "Celula Vegetal",
+        "autor": "usic",
+        "autorUrl": "https://sketchfab.com/usic",
+        "fuente": "https://sketchfab.com/3d-models/celula-vegetal-a02e425f95fc4e189724f5023959b6f3",
+        "cambios": "Texturas reducidas y materiales convertidos para que cargue sin internet; reorientado, textos en español y fondo gris nuevo.",
+        "atribucion": "This work is based on \"Celula Vegetal\" (https://sketchfab.com/3d-models/celula-vegetal-a02e425f95fc4e189724f5023959b6f3) by usic (https://sketchfab.com/usic) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)"
+      },
+      "licencia": {
+        "codigo": "CC BY 4.0",
+        "comercial": true,
+        "modificable": true,
+        "compartirIgual": false,
+        "estado": "ok",
+        "motivo": "",
+        "texto": "CC BY 4.0 (Creative Commons Atribución 4.0)"
+      },
+      "archivos": {
+        "visor": "celula-vegetal-usic/index.html",
+        "glb": "celula-vegetal-usic/modelo.glb",
+        "glbLigero": "celula-vegetal-usic/modelo-ligero.glb",
+        "miniatura": "celula-vegetal-usic/miniatura.webp"
+      },
+      "pesoBytes": {
+        "original": 3710508,
+        "normal": 781012,
+        "ligero": 412964
+      },
+      "optimizado": true,
+      "fuenteSha": "ca2ddcbba902731bbc9472ad31ca1fbca4cf613d863d95c39481de2978c326f0",
+      "glbSha": "8b892ab1133605407b65eeecd3d24706dd50c0c5b5988885637d9cbfb51a6948",
+      "origen": "celula_vegetal_usic.html"
+    },
+    {
+      "id": "pared-celular-vegetal-utpl",
+      "titulo": "Pared celular vegetal",
+      "subtitulo": "Ciencias · Explora · Descubre · Aprende",
+      "curso": "ciencias",
+      "nivel": [
+        "primaria",
+        "secundaria"
+      ],
+      "dimension": "vida",
+      "orden": 100,
+      "partes": [
+        "Membrana plasmática",
+        "Proteínas",
+        "Microfibrillas de celulosa",
+        "Hemicelulosa y pectina",
+        "Lámina media"
+      ],
+      "paginasInfo": 7,
+      "credito": {
+        "titulo": "Pared Celular (Vegetal)",
+        "autor": "3D_UTPL",
+        "autorUrl": "https://sketchfab.com/3D_UTPL",
+        "fuente": "https://sketchfab.com/3d-models/pared-celular-vegetal-c80677e0d32a4e7eb19268ca3eb6d538",
+        "cambios": "Texturas reducidas para que cargue sin internet; capa superior semitransparente, textos en español y fondo gris nuevo.",
+        "atribucion": "This work is based on \"Pared Celular (Vegetal)\" (https://sketchfab.com/3d-models/pared-celular-vegetal-c80677e0d32a4e7eb19268ca3eb6d538) by 3D_UTPL (https://sketchfab.com/3D_UTPL) licensed under CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)"
+      },
+      "licencia": {
+        "codigo": "CC BY-NC-SA 4.0",
+        "comercial": false,
+        "modificable": true,
+        "compartirIgual": true,
+        "estado": "excluir",
+        "motivo": "Uso no comercial: no puede ir en una oferta ni en un producto que se vende.",
+        "texto": "CC BY-NC-SA 4.0 (Atribución-NoComercial-CompartirIgual 4.0). Solo para uso no comercial; las versiones modificadas deben mantener esta misma licencia."
+      },
+      "archivos": {
+        "visor": "pared-celular-vegetal-utpl/index.html",
+        "glb": "pared-celular-vegetal-utpl/modelo.glb",
+        "glbLigero": "pared-celular-vegetal-utpl/modelo-ligero.glb",
+        "miniatura": "pared-celular-vegetal-utpl/miniatura.webp"
+      },
+      "pesoBytes": {
+        "original": 4474456,
+        "normal": 1435380,
+        "ligero": 1047532
+      },
+      "optimizado": true,
+      "fuenteSha": "400528ae850d3b7401350a50039b64a6fcb69edafa66857642a6574826a2f102",
+      "glbSha": "7a0d83358e542dc70cc86863c3729b2de1dea0bf0420b63a16e4e239a7497b08",
+      "origen": "pared_celular_vegetal_utpl.html"
+    }
+  ]
+}

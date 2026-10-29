@@ -1,0 +1,63 @@
+{
+ "id": "mat-prim-multiplicacion-columnas-01",
+ "nivel": "primaria",
+ "curso": "matematica",
+ "tema": "multiplicacion",
+ "modalidad": "actividad",
+ "plantilla": "columnas",
+ "titulo": "Multiplicación en columnas",
+ "ejercicios": [
+  {
+   "a": 14,
+   "b": 3
+  },
+  {
+   "a": 26,
+   "b": 4
+  },
+  {
+   "a": 35,
+   "b": 6
+  },
+  {
+   "a": 48,
+   "b": 7
+  },
+  {
+   "a": 123,
+   "b": 4
+  },
+  {
+   "a": 214,
+   "b": 3
+  },
+  {
+   "a": 357,
+   "b": 8
+  },
+  {
+   "a": 406,
+   "b": 5
+  },
+  {
+   "a": 24,
+   "b": 12
+  },
+  {
+   "a": 32,
+   "b": 23
+  },
+  {
+   "a": 45,
+   "b": 31
+  },
+  {
+   "a": 53,
+   "b": 24
+  },
+  {
+   "a": 67,
+   "b": 42
+  }
+ ]
+}

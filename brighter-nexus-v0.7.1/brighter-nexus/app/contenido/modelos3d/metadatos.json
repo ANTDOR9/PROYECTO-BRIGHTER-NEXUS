@@ -1,0 +1,84 @@
+{
+  "_ayuda": "Datos que curas tú. nivel: primaria / secundaria. dimension: vida | fisica-quimica | tierra-universo. orden: número menor sale primero.",
+  "anatomia-de-una-flor": {
+    "nivel": [
+      "primaria",
+      "secundaria"
+    ],
+    "dimension": "vida",
+    "curso": "ciencias",
+    "orden": 100
+  },
+  "corazon-humano": {
+    "nivel": [
+      "primaria",
+      "secundaria"
+    ],
+    "dimension": "vida",
+    "curso": "ciencias",
+    "orden": 100
+  },
+  "lisosomas-utpl": {
+    "nivel": [
+      "primaria",
+      "secundaria"
+    ],
+    "dimension": "vida",
+    "curso": "ciencias",
+    "orden": 100
+  },
+  "celula-animal": {
+    "nivel": [
+      "primaria",
+      "secundaria"
+    ],
+    "dimension": "vida",
+    "curso": "ciencias",
+    "orden": 100
+  },
+  "celula-animal-utpl": {
+    "nivel": [
+      "primaria",
+      "secundaria"
+    ],
+    "dimension": "vida",
+    "curso": "ciencias",
+    "orden": 100
+  },
+  "celula-eucariota-eve3d": {
+    "nivel": [
+      "primaria",
+      "secundaria"
+    ],
+    "dimension": "vida",
+    "curso": "ciencias",
+    "orden": 100
+  },
+  "celula-vegetal-pascon": {
+    "nivel": [
+      "primaria",
+      "secundaria"
+    ],
+    "dimension": "vida",
+    "curso": "ciencias",
+    "orden": 100
+  },
+  "celula-vegetal-usic": {
+    "nivel": [
+      "primaria",
+      "secundaria"
+    ],
+    "dimension": "vida",
+    "curso": "ciencias",
+    "orden": 100
+  },
+  "pared-celular-vegetal-utpl": {
+    "nivel": [
+      "primaria",
+      "secundaria"
+    ],
+    "dimension": "vida",
+    "curso": "ciencias",
+    "orden": 100
+  }
+}
